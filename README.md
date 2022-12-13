@@ -16,3 +16,8 @@ To compile the project, run the following from within the projects root folder:
  ```
  Entry.exe "[abc](a|de?)|(f{3,5}g+)|r*+"
  ```
+ Example output:
+ ```
+ Simplified regex:
+((a|b|c)(a|(d(e|))))|(ffff?f?gg*)|(r*(?!r))
+ ```
