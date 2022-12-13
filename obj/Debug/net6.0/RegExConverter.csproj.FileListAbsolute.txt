@@ -1,0 +1,15 @@
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\bin\Debug\net6.0\RegExConverter.exe
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\bin\Debug\net6.0\RegExConverter.deps.json
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\bin\Debug\net6.0\RegExConverter.runtimeconfig.json
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\bin\Debug\net6.0\RegExConverter.dll
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\bin\Debug\net6.0\RegExConverter.pdb
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\obj\Debug\net6.0\RegExConverter.csproj.AssemblyReference.cache
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\obj\Debug\net6.0\RegExConverter.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\obj\Debug\net6.0\RegExConverter.AssemblyInfoInputs.cache
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\obj\Debug\net6.0\RegExConverter.AssemblyInfo.cs
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\obj\Debug\net6.0\RegExConverter.csproj.CoreCompileInputs.cache
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\obj\Debug\net6.0\RegExConverter.dll
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\obj\Debug\net6.0\refint\RegExConverter.dll
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\obj\Debug\net6.0\RegExConverter.pdb
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\obj\Debug\net6.0\RegExConverter.genruntimeconfig.cache
+C:\Users\Lexie\Documents\Other\BachelorArbeit\RegExConverter\obj\Debug\net6.0\ref\RegExConverter.dll
