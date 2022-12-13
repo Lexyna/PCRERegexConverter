@@ -11,3 +11,8 @@ To compile the project, run the following from within the projects root folder:
  ``` 
 
  where ```[regex]``` is your *regular* PCRE string.
+
+ Example input:
+ ```
+ Entry.exe "[abc](a|de?)|(f{3,5}g+)|r*+"
+ ```
