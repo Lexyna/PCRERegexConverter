@@ -97,8 +97,10 @@ public class RepetitionToken : Token
 
         for (int i = 0; i < (max - min); i++)
         {
-            stream.Add(t);
-            stream.Add(new OptionalToken());
+            GroupToken gt = new GroupToken("");
+            gt.AddToken(t);
+            gt.AddToken(new AlternateToken());
+            stream.Add(gt);
         }
 
         return stream;
