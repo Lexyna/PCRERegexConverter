@@ -1,10 +1,18 @@
 using System;
-
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 public class Entry
 {
 
+    [DllImport("kernel32.dll")]
+    static extern bool AttachConsole(int dwProcessId);
+    private const int ATTACH_PARENT_PROCESS = -1;
+
+    [STAThread]
     public static void Main(string[] args)
     {
+
+        AttachConsole(ATTACH_PARENT_PROCESS);
 
         if (args.Length < 1)
         {
@@ -33,9 +41,9 @@ public class Entry
         TTAC afa = new TTAC(parser.GetTokens());
         afa.CreateAFA();
 
-        //Console.WriteLine("Simplified regex:");
+        Console.WriteLine("Simplified regex:");
 
-        //Console.WriteLine(parser.TokenStreamToString());
+        Console.WriteLine(parser.TokenStreamToString());
 
     }
 

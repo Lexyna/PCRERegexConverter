@@ -11,6 +11,7 @@ public class TTAC
     public TTAC(List<Token> tokens)
     {
         this.tokens = tokens;
+        start = new State("Start");
 
         if (!ContainsLookahead())
         {
@@ -22,9 +23,6 @@ public class TTAC
 
     public void CreateAFA()
     {
-
-        start = new State("Start");
-
         AddAlternativeTransition(start, this.tokens);
     }
 
