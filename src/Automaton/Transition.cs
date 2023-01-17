@@ -1,6 +1,6 @@
 public class Transition
 {
-    string symbol;
+    public string symbol { private set; get; }
 
     State inS, outS;
 
@@ -10,4 +10,8 @@ public class Transition
         this.outS = outS;
         this.symbol = symbol;
     }
+
+    public State GetOutState() { return outS; }
+    public State GetInState() { return inS; }
+
 }

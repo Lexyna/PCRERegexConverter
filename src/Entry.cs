@@ -41,6 +41,8 @@ public class Entry
         TTAC afa = new TTAC(parser.GetTokens());
         afa.CreateAFA();
 
+        Microsoft.Msagl.Drawing.Graph graph = new Microsoft.Msagl.Drawing.Graph("graph");
+
         Console.WriteLine("Simplified regex:");
 
         Console.WriteLine(parser.TokenStreamToString());

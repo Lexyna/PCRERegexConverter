@@ -8,6 +8,8 @@ public class TTAC
     List<Token> tokens;
     State start;
 
+    int stateCounter = 0;
+
     public TTAC(List<Token> tokens)
     {
         this.tokens = tokens;
@@ -24,6 +26,7 @@ public class TTAC
     public void CreateAFA()
     {
         AddAlternativeTransition(start, this.tokens);
+        AutomatonVisualizer visualizer = new AutomatonVisualizer(start);
     }
 
     /*
@@ -142,13 +145,15 @@ public class TTAC
     {
         //tokens are always in dnf
 
-        State endState = new State("e");
+        State endState = new State("e" + stateCounter);
+        stateCounter++;
 
         for (int i = 0; i < tokens.Count; i++)
         {
             if (i % 2 != 0) continue;
 
-            State newState = new State("q" + i);
+            State newState = new State("q" + stateCounter);
+            stateCounter++;
             Transition t = new Transition(baseState, "", newState); //Epsilon transition
             baseState.AddOutgoingTransition(t);
             newState.AddIngoingTransition(t);
@@ -186,7 +191,8 @@ public class TTAC
         {
             case 0:
                 {
-                    State terminalState = new State("Ts");
+                    State terminalState = new State("T" + stateCounter);
+                    stateCounter++;
                     Transition t = new Transition(curr, token.symbol, terminalState);
                     curr.AddOutgoingTransition(t);
                     terminalState.AddIngoingTransition(t);
@@ -195,7 +201,8 @@ public class TTAC
                 }
             case 1:
                 {
-                    State terminalState = new State("Ts");
+                    State terminalState = new State("T" + stateCounter);
+                    stateCounter++;
                     Transition t1 = new Transition(curr, token.symbol, terminalState);
                     Transition t2 = new Transition(curr, "", terminalState);
                     curr.AddOutgoingTransition(t1);
@@ -207,7 +214,8 @@ public class TTAC
                 }
             case 2:
                 {
-                    State terminalState = new State("Ts");
+                    State terminalState = new State("T" + stateCounter);
+                    stateCounter++;
                     Transition epsilon = new Transition(curr, "", terminalState);
                     Transition self = new Transition(terminalState, token.symbol, terminalState);
                     curr.AddOutgoingTransition(epsilon);
@@ -259,7 +267,8 @@ public class TTAC
         {
             if (i % 2 != 0) continue;
 
-            State newState = new State("q" + i);
+            State newState = new State("q" + stateCounter);
+            stateCounter++;
             Transition t = new Transition(baseState, "", newState); //Epsilon transition
             baseState.AddOutgoingTransition(t);
             newState.AddIngoingTransition(t);
