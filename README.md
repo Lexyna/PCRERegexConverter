@@ -19,5 +19,5 @@ To compile the project, run the following from within the projects root folder:
  Example output:
  ```
  Simplified regex:
-((a|b|c)(a|(d(e|))))|(ffff?f?gg*)|(r*(?!r))
+((a|b|c)(a|(d(e|))))|(fff(f|)(f|)gg*)|(r*(?!r))
  ```
