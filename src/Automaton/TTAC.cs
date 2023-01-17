@@ -6,6 +6,7 @@ using System.Collections.Generic;
 public class TTAC
 {
     List<Token> tokens;
+    State start;
 
     public TTAC(List<Token> tokens)
     {
@@ -22,7 +23,7 @@ public class TTAC
     public void CreateAFA()
     {
 
-        State start = new State("Start");
+        start = new State("Start");
 
         AddAlternativeTransition(start, this.tokens);
     }
@@ -47,11 +48,11 @@ public class TTAC
             switch (token.tokenOP)
             {
                 case Token.OP.Terminal:
-                    int x1 = AddTerminalState(curr, token, la);
+                    int x1 = AddTerminalState(ref curr, token, la);
                     i += x1;
                     break;
                 case Token.OP.Group:
-                    int x2 = AddGroupState(curr, token, la);
+                    int x2 = AddGroupState(ref curr, token, la);
                     i += x2;
                     break;
 
@@ -64,7 +65,7 @@ public class TTAC
 
     }
 
-    private int AddGroupState(State curr, Token token, int la)
+    private int AddGroupState(ref State curr, Token token, int la)
     {
 
         GroupToken groupToken = ((GroupToken)token);
@@ -180,7 +181,7 @@ public class TTAC
         return curr;
     }
 
-    private int AddTerminalState(State curr, Token token, int la)
+    private int AddTerminalState(ref State curr, Token token, int la)
     {
 
         switch (la)
