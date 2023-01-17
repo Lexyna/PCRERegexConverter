@@ -155,6 +155,9 @@ public class Lexer
             if (op == Token.OP.Group && group_char.Equals(')'))
                 innerGroups--;
 
+            if (innerGroups > 0 && op == Token.OP.EOL)
+                throw new Exception("Unbalanced Parenthesizes, can't compute Regex.");
+
         } while ((op != Token.OP.Group && op != Token.OP.EOL) || innerGroups > 0);
 
         tokens.Add(new GroupToken(groupString));
