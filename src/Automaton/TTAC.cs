@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-public class Converter
+
+//TokenToAutomatonConverter
+public class TTAC
 {
     List<Token> tokens;
 
-    public Converter(List<Token> tokens)
+    public TTAC(List<Token> tokens)
     {
         this.tokens = tokens;
 
@@ -17,7 +19,7 @@ public class Converter
 
     }
 
-    private void CreateAFA()
+    public void CreateAFA()
     {
 
         State start = new State("Start");
@@ -239,7 +241,7 @@ public class Converter
 
     private void ProcessGroup(State baseState, GroupToken group)
     {
-
+        //TODO: Differentiate between dnf in group and end group
         if (group.isDNF())
         {
             AddAlternativeTransition(baseState, group.GetTokens());
@@ -251,7 +253,8 @@ public class Converter
 
     private void AddAlternativeTransition(State baseState, List<Token> tokens)
     {
-        //tokens are in dnf 
+        // Tokens are in disjunct normal form
+        // Group | Group | Group ...
 
         for (int i = 0; i < tokens.Count; i++)
         {

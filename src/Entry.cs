@@ -30,9 +30,12 @@ public class Entry
         ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
         parser.Simplify();
 
-        Console.WriteLine("Simplified regex:");
+        TTAC afa = new TTAC(parser.GetTokens());
+        afa.CreateAFA();
 
-        Console.WriteLine(parser.TokenStreamToString());
+        //Console.WriteLine("Simplified regex:");
+
+        //Console.WriteLine(parser.TokenStreamToString());
 
     }
 
