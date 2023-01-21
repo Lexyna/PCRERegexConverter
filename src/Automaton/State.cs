@@ -3,9 +3,10 @@ using System.Collections.Generic;
 public class State
 {
 
-    public string id { private set; get; }
+    public string id { set; get; }
 
     public bool visited = false;
+    public bool Simplified = false;
     public bool isEndState { private set; get; }
 
     //bool isUniversalTransition = false; //For AFA, moves to all connected states
@@ -19,6 +20,24 @@ public class State
         this.isEndState = isEndState;
     }
 
+    public void SimplifyName(ref int index)
+    {
+        Simplified = true;
+        this.id = "q" + index;
+        index++;
+
+        for (int i = 0; i < outgoing.Count; i++)
+        {
+            if (!outgoing[i].GetOutState().Simplified)
+                outgoing[i].GetOutState().SimplifyName(ref index);
+        }
+    }
+
+    public void SetEndState(bool isEndState)
+    {
+        this.isEndState = isEndState;
+    }
+
     public void AddIngoingTransition(Transition t)
     {
         ingoing.Add(t);
@@ -27,6 +46,14 @@ public class State
     public void AddOutgoingTransition(Transition t)
     {
         outgoing.Add(t);
+    }
+
+    public void RemoveDeadTransitions()
+    {
+
+        for (int i = ingoing.Count - 1; i >= 0; i--)
+            if (ingoing[i].delete) ingoing.RemoveAt(i);
+
     }
 
     public List<Transition> GetIngoingTransitions() { return ingoing; }

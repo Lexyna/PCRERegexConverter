@@ -4,6 +4,8 @@ public class Transition
 
     State inS, outS;
 
+    public bool delete { get; private set; }
+
     public Transition(State inS, string symbol, State outS)
     {
         this.inS = inS;
@@ -13,5 +15,10 @@ public class Transition
 
     public State GetOutState() { return outS; }
     public State GetInState() { return inS; }
+
+    public void Delete()
+    {
+        delete = true;
+    }
 
 }

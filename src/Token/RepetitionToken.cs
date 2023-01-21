@@ -98,8 +98,13 @@ public class RepetitionToken : Token
         for (int i = 0; i < (max - min); i++)
         {
             GroupToken gt = new GroupToken("");
-            gt.AddToken(t);
+            GroupToken left = new GroupToken("");
+            left.AddToken(t);
+            gt.AddToken(left);
+            //gt.AddToken(t);
             gt.AddToken(new AlternateToken());
+            gt.AddToken(new GroupToken(""));
+            //gt.AddToken(new EpsilonToken());
             stream.Add(gt);
         }
 

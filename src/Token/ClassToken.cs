@@ -145,4 +145,5 @@ public class ClassToken : Token
 
         return false;
     }
+
 }
