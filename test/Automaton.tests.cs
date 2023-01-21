@@ -93,4 +93,22 @@ public class AutomatonTests
 
     }
 
+    [Fact]
+    public void NoEndStateWithTransition()
+    {
+        Automaton automaton = new Automaton();
+        State start = new State("Start");
+        State end = new State("End");
+
+        Transition con = new Transition(start, "", end);
+        start.AddOutgoingTransition(con);
+        end.AddIngoingTransition(con);
+
+        automaton.AddStartingState(start);
+        automaton.AddAcceptingState(end);
+
+        Assert.True(automaton.IsOptional());
+
+    }
+
 }
