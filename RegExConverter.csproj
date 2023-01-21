@@ -1,16 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-     <UseWindowsForms>true</UseWindowsForms>
+    <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
+    <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="AutomaticGraphLayout" Version="1.1.12" />
-    <PackageReference Include="AutomaticGraphLayout.Drawing" Version="1.1.12" />
-    <PackageReference Include="AutomaticGraphLayout.GraphViewerGDI" Version="1.1.12" />
+    <PackageReference Include="AutomaticGraphLayout" Version="1.1.12"/>
+    <PackageReference Include="AutomaticGraphLayout.Drawing" Version="1.1.12"/>
+    <PackageReference Include="AutomaticGraphLayout.GraphViewerGDI" Version="1.1.12"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0-preview-20221221-03"/>
+    <PackageReference Include="xunit" Version="2.4.2"/>
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5"/>
   </ItemGroup>
 </Project>

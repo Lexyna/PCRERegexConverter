@@ -21,4 +21,17 @@ public class Automaton
         acceptingStates.Add(state);
     }
 
+    /**
+        Returns if this Automaton is optional. 
+        Automatons are optional, if either any start State is an accepting end State, or
+        if one can be reach over epsilon Transitions from any start State
+    */
+    public bool IsOptional()
+    {
+        for (int i = 0; i < startStates.Count; i++)
+            if (startStates[i].isEndState) return true;
+
+        return false;
+    }
+
 }
