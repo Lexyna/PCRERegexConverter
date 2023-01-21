@@ -38,21 +38,14 @@ public class Entry
         ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
         parser.Simplify();
 
-        //TTAC afa = new TTAC(parser.Simplify());
-        //afa.CreateAFA();
-
-        //Console.WriteLine("Simplified regex:");
 
         GroupToken gt = new GroupToken("");
 
         gt.AddTokenStream(parser.Simplify());
 
-        Automaton afa = gt.CreateAutomaton();
-        afa.SimplifyName();
-
         Console.WriteLine("s: " + parser.TokenStreamToString());
 
-        AutomatonVisualizer visualizer = new AutomatonVisualizer(afa.startStates[0]);
+        //AutomatonVisualizer visualizer = new AutomatonVisualizer(afa.startStates[0]);
 
     }
 
