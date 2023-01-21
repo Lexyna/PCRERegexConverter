@@ -1,6 +1,6 @@
 using Xunit;
 
-public class Test
+public class AutomatonTests
 {
 
     [Fact]
