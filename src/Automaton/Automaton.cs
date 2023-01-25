@@ -224,11 +224,11 @@ public class Automaton
     {
         bool accepts = false;
 
-        for (int i = 0; i < acceptingStates.Count; i++)
+        for (int i = 0; i < activeStates.Count; i++)
         {
-            State state = acceptingStates.ElementAt(i);
+            KeyValuePair<string, State> entry = activeStates.ElementAt(i);
 
-            if (!state.isEndState) continue;
+            if (!entry.Value.isEndState) continue;
 
             accepts = true;
             break;
