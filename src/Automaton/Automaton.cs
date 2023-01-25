@@ -17,7 +17,7 @@ public class Automaton
         {
             State newAcceptingState = new State("TerminalState");
             newAcceptingState.SetEndState(true);
-            for (int i = automaton.acceptingStates.Count; i >= 0; i--)
+            for (int i = automaton.acceptingStates.Count - 1; i >= 0; i--)
             {
                 Transition t = new Transition(automaton.acceptingStates[i], token.symbol, newAcceptingState);
                 automaton.acceptingStates[i].AddOutgoingTransition(t);
@@ -65,9 +65,10 @@ public class Automaton
         acceptingStates = new List<State>();
         this.tokenStream = tokenStream;
         innerAutomaton = new List<Automaton>();
+        ConvertTokenStream();
     }
 
-    private void convertTokenStream()
+    private void ConvertTokenStream()
     {
 
         if (tokenStream.Count == 0) return;
@@ -141,6 +142,32 @@ public class Automaton
         }
 
         return false;
+    }
+
+    public void SetStateName()
+    {
+
+        Dictionary<string, bool> visited = new Dictionary<string, bool>();
+
+        int index = 0;
+
+        startStates.ForEach(s => TraverseStates(s, ref index, ref visited));
+
+    }
+
+    private void TraverseStates(State state, ref int index, ref Dictionary<string, bool> visited)
+    {
+
+        if (visited.ContainsKey(state.id)) return;
+
+        state.id = "q" + index;
+        index++;
+
+        visited.Add(state.id, true);
+
+        for (int i = 0; i < state.GetOutgoingTransitions().Count; i++)
+            TraverseStates(state.GetOutgoingTransitions()[i].GetOutState(), ref index, ref visited);
+
     }
 
 }

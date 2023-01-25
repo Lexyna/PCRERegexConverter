@@ -45,7 +45,15 @@ public class Entry
 
         Console.WriteLine("s: " + parser.TokenStreamToString());
 
-        //AutomatonVisualizer visualizer = new AutomatonVisualizer(afa.startStates[0]);
+        List<Token> testStream = new List<Token>();
+
+        testStream.Add(new TerminalToken("a"));
+        testStream.Add(new TerminalToken("b"));
+
+        Automaton a = new Automaton(testStream);
+        a.SetStateName();
+
+        AutomatonVisualizer visualizer = new AutomatonVisualizer(a.startStates[0]);
 
     }
 
