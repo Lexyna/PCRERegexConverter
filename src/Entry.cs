@@ -49,6 +49,7 @@ public class Entry
 
         testStream.Add(new TerminalToken("a"));
         testStream.Add(new TerminalToken("b"));
+        testStream.Add(new TerminalToken("c"));
 
         Automaton a = new Automaton(testStream);
         a.SetStateName();

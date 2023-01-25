@@ -19,7 +19,7 @@ public class Transition
     public void Apply()
     {
         inS.AddOutgoingTransition(this);
-        outS.AddOutgoingTransition(this);
+        outS.AddIngoingTransition(this);
     }
     public void Delete()
     {

@@ -20,11 +20,13 @@ public class Automaton
             for (int i = automaton.acceptingStates.Count - 1; i >= 0; i--)
             {
                 Transition t = new Transition(automaton.acceptingStates[i], token.symbol, newAcceptingState);
-                automaton.acceptingStates[i].AddOutgoingTransition(t);
+                t.Apply();
+
                 automaton.acceptingStates[i].SetEndState(false);
                 automaton.RemoveAcceptingState(i);
-                newAcceptingState.AddIngoingTransition(t);
+
             }
+            automaton.AddAcceptingState(newAcceptingState);
             return;
         }
 
