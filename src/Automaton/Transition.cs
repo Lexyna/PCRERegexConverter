@@ -16,6 +16,11 @@ public class Transition
     public State GetOutState() { return outS; }
     public State GetInState() { return inS; }
 
+    public void Apply()
+    {
+        inS.AddOutgoingTransition(this);
+        outS.AddOutgoingTransition(this);
+    }
     public void Delete()
     {
         delete = true;
