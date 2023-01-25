@@ -210,7 +210,8 @@ public class Automaton
 
             transitions.ForEach(t =>
             {
-                if (t.symbol.Equals(c.ToString()) || t.symbol == "")
+                if ((t.symbol.Equals(c.ToString()) || t.symbol == "") &&
+                    !nextStates.ContainsKey(t.GetOutState().id))
                     nextStates.Add(t.GetOutState().id, t.GetOutState());
             });
 
