@@ -25,8 +25,7 @@ public class StateNameTests
         end.SetEndState(true);
 
         Transition con = new Transition(start, "", end);
-        start.AddOutgoingTransition(con);
-        end.AddIngoingTransition(con);
+        con.Apply();
 
         automaton.AddStartingState(start);
         automaton.AddAcceptingState(end);
@@ -49,12 +48,10 @@ public class StateNameTests
         State p2 = new State("p2");
 
         Transition leftFork = new Transition(start, "", p1);
-        start.AddOutgoingTransition(leftFork);
-        p1.AddIngoingTransition(leftFork);
+        leftFork.Apply();
 
         Transition rightFork = new Transition(start, "", p2);
-        start.AddOutgoingTransition(rightFork);
-        p2.AddIngoingTransition(rightFork);
+        rightFork.Apply();
 
         automaton.SetStateName();
 

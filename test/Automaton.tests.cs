@@ -23,8 +23,7 @@ public class AutomatonTests
         end.SetEndState(true);
 
         Transition con = new Transition(start, "", end);
-        start.AddOutgoingTransition(con);
-        end.AddIngoingTransition(con);
+        con.Apply();
 
         automaton.AddStartingState(start);
         automaton.AddAcceptingState(end);
@@ -42,12 +41,10 @@ public class AutomatonTests
         end.SetEndState(true);
 
         Transition con = new Transition(start, "", end);
-        start.AddOutgoingTransition(con);
-        end.AddIngoingTransition(con);
+        con.Apply();
 
         Transition circularTransition = new Transition(end, "", start);
-        end.AddOutgoingTransition(circularTransition);
-        start.AddIngoingTransition(circularTransition);
+        circularTransition.Apply();
 
         automaton.AddStartingState(start);
         automaton.AddAcceptingState(end);
@@ -65,16 +62,13 @@ public class AutomatonTests
         end.SetEndState(true);
 
         Transition con = new Transition(start, "", mid);
-        start.AddOutgoingTransition(con);
-        mid.AddIngoingTransition(con);
+        con.Apply();
 
         Transition midTransition = new Transition(mid, "", end);
-        mid.AddOutgoingTransition(midTransition);
-        end.AddIngoingTransition(midTransition);
+        midTransition.Apply();
 
         Transition circularTransition = new Transition(end, "", start);
-        end.AddOutgoingTransition(circularTransition);
-        start.AddIngoingTransition(circularTransition);
+        circularTransition.Apply();
 
         automaton.AddStartingState(start);
         automaton.AddAcceptingState(end);
@@ -101,8 +95,7 @@ public class AutomatonTests
         State end = new State("End");
 
         Transition con = new Transition(start, "", end);
-        start.AddOutgoingTransition(con);
-        end.AddIngoingTransition(con);
+        con.Apply();
 
         automaton.AddStartingState(start);
         automaton.AddAcceptingState(end);
@@ -120,8 +113,7 @@ public class AutomatonTests
         State end = new State("End");
 
         Transition con = new Transition(start, "a", end);
-        start.AddOutgoingTransition(con);
-        end.AddIngoingTransition(con);
+        con.Apply();
 
         automaton.AddStartingState(start);
         automaton.AddAcceptingState(end);
@@ -140,12 +132,10 @@ public class AutomatonTests
         State end = new State("End");
 
         Transition startTransition = new Transition(start, "a", end);
-        start.AddOutgoingTransition(startTransition);
-        mid.AddIngoingTransition(startTransition);
+        startTransition.Apply();
 
         Transition endTransition = new Transition(mid, "b", end);
-        mid.AddOutgoingTransition(endTransition);
-        end.AddIngoingTransition(endTransition);
+        endTransition.Apply();
 
         automaton.AddStartingState(start);
         automaton.AddAcceptingState(end);
@@ -164,16 +154,13 @@ public class AutomatonTests
         State end = new State("End");
 
         Transition startTransition = new Transition(start, "a", end);
-        start.AddOutgoingTransition(startTransition);
-        mid.AddIngoingTransition(startTransition);
+        startTransition.Apply();
 
         Transition endTransition = new Transition(mid, "b", end);
-        mid.AddOutgoingTransition(endTransition);
-        end.AddIngoingTransition(endTransition);
+        endTransition.Apply();
 
         Transition epsilonTransition = new Transition(start, "", end);
-        start.AddOutgoingTransition(epsilonTransition);
-        end.AddIngoingTransition(epsilonTransition);
+        epsilonTransition.Apply();
 
         automaton.AddStartingState(start);
         automaton.AddAcceptingState(end);
@@ -192,16 +179,13 @@ public class AutomatonTests
         State end = new State("End");
 
         Transition startTransition = new Transition(start, "a", end);
-        start.AddOutgoingTransition(startTransition);
-        mid.AddIngoingTransition(startTransition);
+        startTransition.Apply();
 
         Transition endTransition = new Transition(mid, "b", end);
-        mid.AddOutgoingTransition(endTransition);
-        end.AddIngoingTransition(endTransition);
+        endTransition.Apply();
 
         Transition epsilonTransition = new Transition(mid, "", end);
-        mid.AddOutgoingTransition(epsilonTransition);
-        end.AddIngoingTransition(epsilonTransition);
+        epsilonTransition.Apply();
 
         automaton.AddStartingState(start);
         automaton.AddAcceptingState(end);
