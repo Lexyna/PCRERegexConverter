@@ -61,4 +61,34 @@ public class StateNameTests
 
     }
 
+    [Fact]
+    public void FourStateForkAutomaton()
+    {
+
+        Automaton automaton = new Automaton();
+        State start = new State("Start");
+        automaton.AddStartingState(start);
+
+        State a1 = new State("a1");
+        State a2 = new State("a2");
+        State b1 = new State("b1");
+
+        Transition leftFork = new Transition(start, "", a1);
+        leftFork.Apply();
+
+        Transition aTransition = new Transition(a1, "", a2);
+        aTransition.Apply();
+
+        Transition rightFork = new Transition(start, "", b1);
+        rightFork.Apply();
+
+        automaton.SetStateName();
+
+        Assert.Equal("q0", start.id);
+        Assert.Equal("q1", a1.id);
+        Assert.Equal("q2", a2.id);
+        Assert.Equal("q3", b1.id);
+
+    }
+
 }
