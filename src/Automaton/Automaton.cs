@@ -172,4 +172,71 @@ public class Automaton
 
     }
 
+    public bool AcceptsWord(string word)
+    {
+        char[] sequence = word.ToArray();
+
+        //This list dict tracks all possible position, all state id's need to be unique
+        Dictionary<string, State> activeStates = new Dictionary<string, State>();
+
+        for (int i = 0; i < startStates.Count; i++)
+            activeStates.Add(startStates[i].id, startStates[i]);
+
+        AdvanceStates(ref activeStates, sequence);
+
+        return ContainsEndState(ref activeStates);
+    }
+
+    private void AdvanceStates(ref Dictionary<string, State> activeStates, char[] sequence)
+    {
+
+        for (int i = 0; i < sequence.Length; i++)
+        {
+            CalculateNextStates(ref activeStates, sequence[i]);
+        }
+
+    }
+
+    private void CalculateNextStates(ref Dictionary<string, State> activeStates, char c)
+    {
+
+        Dictionary<string, State> nextStates = new Dictionary<string, State>();
+
+        foreach (KeyValuePair<string, State> entry in activeStates)
+        {
+            State state = entry.Value;
+
+            List<Transition> transitions = state.GetOutgoingTransitions();
+
+            transitions.ForEach(t =>
+            {
+                if (t.symbol.Equals(c.ToString()) || t.symbol == "")
+                    nextStates.Add(t.GetOutState().id, t.GetOutState());
+            });
+
+        }
+
+        activeStates = nextStates;
+
+    }
+
+    private bool ContainsEndState(ref Dictionary<string, State> activeStates)
+    {
+        bool accepts = false;
+
+        for (int i = 0; i < acceptingStates.Count; i++)
+        {
+            State state = acceptingStates.ElementAt(i);
+
+            if (!state.isEndState) continue;
+
+            accepts = true;
+            break;
+        }
+
+        return accepts;
+    }
+
+    //Todo: Implement hashing method using id and ingoing/outgoingTransitions
+
 }
