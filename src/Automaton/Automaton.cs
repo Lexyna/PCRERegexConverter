@@ -1,13 +1,88 @@
 public class Automaton
 {
 
-    private List<State> startStates;
-    private List<State> acceptingStates;
+    public static Automaton buildAutomaton(List<Token> tokenStream)
+    {
+
+
+
+
+        return new Automaton();
+    }
+
+    public static void BuildTerminal(Automaton automaton, TerminalToken token)
+    {
+
+        if (automaton.acceptingStates.Count > 0)
+        {
+            State newAcceptingState = new State("TerminalState");
+            newAcceptingState.SetEndState(true);
+            for (int i = automaton.acceptingStates.Count; i >= 0; i--)
+            {
+                Transition t = new Transition(automaton.acceptingStates[i], token.symbol, newAcceptingState);
+                automaton.acceptingStates[i].AddOutgoingTransition(t);
+                automaton.acceptingStates[i].SetEndState(false);
+                automaton.RemoveAcceptingState(i);
+                newAcceptingState.AddIngoingTransition(t);
+            }
+            return;
+        }
+
+        State start = new State("S");
+        State newTransitionState = new State("TerminalState");
+        newTransitionState.SetEndState(true);
+
+        Transition transition = new Transition(start, token.symbol, newTransitionState);
+        start.AddOutgoingTransition(transition);
+        automaton.AddStartingState(start);
+
+        newTransitionState.AddIngoingTransition(transition);
+        automaton.AddAcceptingState(newTransitionState);
+    }
+
+    //Class properties
+
+    public List<State> startStates { get; private set; }
+    public List<State> acceptingStates { get; private set; }
+
+    //Reference to the token sequence defining this Automaton
+    private List<Token> tokenStream;
+
+    //Child Automaton
+    private List<Automaton> innerAutomaton;
 
     public Automaton()
     {
         startStates = new List<State>();
         acceptingStates = new List<State>();
+        tokenStream = new List<Token>();
+        innerAutomaton = new List<Automaton>();
+    }
+
+    public Automaton(List<Token> tokenStream)
+    {
+        startStates = new List<State>();
+        acceptingStates = new List<State>();
+        this.tokenStream = tokenStream;
+        innerAutomaton = new List<Automaton>();
+    }
+
+    private void convertTokenStream()
+    {
+
+        if (tokenStream.Count == 0) return;
+
+        for (int i = 0; i < tokenStream.Count; i++)
+        {
+
+            switch (tokenStream[i].tokenOP)
+            {
+                case Token.OP.Terminal: Automaton.BuildTerminal(this, (TerminalToken)tokenStream[i]); break;
+                default: Console.WriteLine("Couldn't process  token" + tokenStream[i].tokenOP); break;
+            }
+
+        }
+
     }
 
     public void AddStartingState(State state)
@@ -19,6 +94,11 @@ public class Automaton
     {
         state.SetEndState(true);
         acceptingStates.Add(state);
+    }
+
+    public void RemoveAcceptingState(int index)
+    {
+        acceptingStates.RemoveAt(index);
     }
 
     /**
