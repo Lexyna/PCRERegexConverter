@@ -111,4 +111,103 @@ public class AutomatonTests
 
     }
 
+    [Fact]
+    public void AlphaTransition()
+    {
+
+        Automaton automaton = new Automaton();
+        State start = new State("Start");
+        State end = new State("End");
+
+        Transition con = new Transition(start, "a", end);
+        start.AddOutgoingTransition(con);
+        end.AddIngoingTransition(con);
+
+        automaton.AddStartingState(start);
+        automaton.AddAcceptingState(end);
+
+        Assert.False(automaton.IsOptional());
+
+    }
+
+    [Fact]
+    public void AlphaBetaTransition()
+    {
+
+        Automaton automaton = new Automaton();
+        State start = new State("Start");
+        State mid = new State("Mid");
+        State end = new State("End");
+
+        Transition startTransition = new Transition(start, "a", end);
+        start.AddOutgoingTransition(startTransition);
+        mid.AddIngoingTransition(startTransition);
+
+        Transition endTransition = new Transition(mid, "b", end);
+        mid.AddOutgoingTransition(endTransition);
+        end.AddIngoingTransition(endTransition);
+
+        automaton.AddStartingState(start);
+        automaton.AddAcceptingState(end);
+
+        Assert.False(automaton.IsOptional());
+
+    }
+
+    [Fact]
+    public void AlphaBetaTransitionWithEpsilonToEndStateFromStart()
+    {
+
+        Automaton automaton = new Automaton();
+        State start = new State("Start");
+        State mid = new State("Mid");
+        State end = new State("End");
+
+        Transition startTransition = new Transition(start, "a", end);
+        start.AddOutgoingTransition(startTransition);
+        mid.AddIngoingTransition(startTransition);
+
+        Transition endTransition = new Transition(mid, "b", end);
+        mid.AddOutgoingTransition(endTransition);
+        end.AddIngoingTransition(endTransition);
+
+        Transition epsilonTransition = new Transition(start, "", end);
+        start.AddOutgoingTransition(epsilonTransition);
+        end.AddIngoingTransition(epsilonTransition);
+
+        automaton.AddStartingState(start);
+        automaton.AddAcceptingState(end);
+
+        Assert.True(automaton.IsOptional());
+
+    }
+
+    [Fact]
+    public void AlphaBetaTransitionWithEpsilonToEndStateFromMid()
+    {
+
+        Automaton automaton = new Automaton();
+        State start = new State("Start");
+        State mid = new State("Mid");
+        State end = new State("End");
+
+        Transition startTransition = new Transition(start, "a", end);
+        start.AddOutgoingTransition(startTransition);
+        mid.AddIngoingTransition(startTransition);
+
+        Transition endTransition = new Transition(mid, "b", end);
+        mid.AddOutgoingTransition(endTransition);
+        end.AddIngoingTransition(endTransition);
+
+        Transition epsilonTransition = new Transition(mid, "", end);
+        mid.AddOutgoingTransition(epsilonTransition);
+        end.AddIngoingTransition(epsilonTransition);
+
+        automaton.AddStartingState(start);
+        automaton.AddAcceptingState(end);
+
+        Assert.False(automaton.IsOptional());
+
+    }
+
 }
