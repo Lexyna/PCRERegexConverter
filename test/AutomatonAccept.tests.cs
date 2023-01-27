@@ -279,4 +279,32 @@ public class AutomatonAcceptTests
 
     }
 
+    [Fact]
+    public void AutomatonEpsilonEpsilonA()
+    {
+
+        Automaton auto = new Automaton();
+
+        State start = new State("");
+        State mid1 = new State("");
+        State mid2 = new State("");
+        State end = new State("");
+
+        Transition epsilonTransition = new Transition(start, "", mid1);
+        epsilonTransition.Apply();
+
+        Transition epsilonTransition2 = new Transition(mid1, "", mid2);
+        epsilonTransition2.Apply();
+
+        Transition aTransition = new Transition(mid2, "a", end);
+        aTransition.Apply();
+
+        auto.AddStartingState(start);
+        auto.AddAcceptingState(end);
+
+        auto.SetStateName();
+
+        Assert.True(auto.AcceptsWord("a"));
+
+    }
 }

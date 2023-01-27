@@ -230,6 +230,8 @@ public class Automaton
 
         Dictionary<string, State> nextStates = new Dictionary<string, State>();
 
+        bool addedNewState = false;
+
         foreach (KeyValuePair<string, State> entry in activeStates)
         {
             State state = entry.Value;
@@ -239,13 +241,19 @@ public class Automaton
 
             for (int j = 0; j < transitions.Count; j++)
             {
-                if (transitions[j].symbol == "" &&
-                     !activeStates.ContainsKey(transitions[j].GetOutState().id))
-                    nextStates.Add(transitions[j].GetOutState().id, transitions[j].GetOutState());
+                if (transitions[j].symbol != "" ||
+                     activeStates.ContainsKey(transitions[j].GetOutState().id))
+                    continue;
+
+                nextStates.Add(transitions[j].GetOutState().id, transitions[j].GetOutState());
+                addedNewState = true;
             }
         }
 
         activeStates = nextStates;
+
+        if (addedNewState)
+            ResolveEpsilonTransition(ref activeStates);
     }
 
     private bool ContainsEndState(ref Dictionary<string, State> activeStates)
