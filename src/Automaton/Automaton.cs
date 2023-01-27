@@ -182,6 +182,8 @@ public class Automaton
         for (int i = 0; i < startStates.Count; i++)
             activeStates.Add(startStates[i].id, startStates[i]);
 
+        ResolveEpsilonTransition(ref activeStates);
+
         AdvanceStates(ref activeStates, sequence);
 
         return ContainsEndState(ref activeStates);
@@ -210,15 +212,40 @@ public class Automaton
 
             transitions.ForEach(t =>
             {
-                if ((t.symbol.Equals(c.ToString()) || t.symbol == "") &&
+                if ((t.symbol.Equals(c.ToString())) &&
                     !nextStates.ContainsKey(t.GetOutState().id))
                     nextStates.Add(t.GetOutState().id, t.GetOutState());
             });
 
         }
 
+        ResolveEpsilonTransition(ref nextStates);
+
         activeStates = nextStates;
 
+    }
+
+    private void ResolveEpsilonTransition(ref Dictionary<string, State> activeStates)
+    {
+
+        Dictionary<string, State> nextStates = new Dictionary<string, State>();
+
+        foreach (KeyValuePair<string, State> entry in activeStates)
+        {
+            State state = entry.Value;
+            nextStates.Add(state.id, state);
+
+            List<Transition> transitions = state.GetOutgoingTransitions();
+
+            for (int j = 0; j < transitions.Count; j++)
+            {
+                if (transitions[j].symbol == "" &&
+                     !activeStates.ContainsKey(transitions[j].GetOutState().id))
+                    nextStates.Add(transitions[j].GetOutState().id, transitions[j].GetOutState());
+            }
+        }
+
+        activeStates = nextStates;
     }
 
     private bool ContainsEndState(ref Dictionary<string, State> activeStates)

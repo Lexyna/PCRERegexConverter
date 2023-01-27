@@ -20,8 +20,6 @@ public class AutomatonAcceptTests
         auto.SetStateName();
 
         Assert.True(auto.AcceptsWord("a"));
-
-
     }
 
     [Fact]
@@ -253,6 +251,31 @@ public class AutomatonAcceptTests
         Assert.True(auto.AcceptsWord("aabc"));
         Assert.True(auto.AcceptsWord("aaabc"));
         Assert.True(auto.AcceptsWord("aaaabc"));
+
+    }
+
+    [Fact]
+    public void AutomatonEpsilonA()
+    {
+
+        Automaton auto = new Automaton();
+
+        State start = new State("");
+        State mid = new State("");
+        State end = new State("");
+
+        Transition epsilonTransition = new Transition(start, "", mid);
+        epsilonTransition.Apply();
+
+        Transition aTransition = new Transition(mid, "a", end);
+        aTransition.Apply();
+
+        auto.AddStartingState(start);
+        auto.AddAcceptingState(end);
+
+        auto.SetStateName();
+
+        Assert.True(auto.AcceptsWord("a"));
 
     }
 
