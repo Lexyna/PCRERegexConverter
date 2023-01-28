@@ -307,4 +307,90 @@ public class AutomatonAcceptTests
         Assert.True(auto.AcceptsWord("a"));
 
     }
+
+    [Fact]
+    public void AutomatonABBPlusCOptional()
+    {
+        //  regex: abb*c?
+
+        Automaton auto = new Automaton();
+
+        State q0 = new State("");
+        State q1 = new State("");
+        State q2 = new State("");
+        State q3 = new State("");
+
+        Transition aTransition = new Transition(q0, "a", q1);
+        aTransition.Apply();
+
+        Transition bTransition = new Transition(q1, "b", q2);
+        bTransition.Apply();
+
+        Transition bStartTransition = new Transition(q2, "b", q2);
+        bStartTransition.Apply();
+
+        Transition cTransition = new Transition(q2, "c", q3);
+        cTransition.Apply();
+
+        auto.AddStartingState(q0);
+        auto.AddAcceptingState(q2);
+        auto.AddAcceptingState(q3);
+
+        auto.SetStateName();
+
+        Assert.True(auto.AcceptsWord("ab"));
+        Assert.True(auto.AcceptsWord("abc"));
+        Assert.True(auto.AcceptsWord("abbc"));
+        Assert.True(auto.AcceptsWord("abbbbc"));
+
+        Assert.False(auto.AcceptsWord("ac"));
+    }
+
+    [Fact]
+    public void AutomatonAStarBBPlusCOptional()
+    {
+        //  regex: a*bb*c?
+
+        Automaton auto = new Automaton();
+
+        State q0 = new State("");
+        State q1 = new State("");
+        State q2 = new State("");
+        State q3 = new State("");
+
+        Transition aTransition = new Transition(q0, "a", q1);
+        aTransition.Apply();
+
+        Transition epsilonTransition = new Transition(q0, "", q2);
+        epsilonTransition.Apply();
+
+        Transition aStarTransition = new Transition(q1, "a", q1);
+        aStarTransition.Apply();
+
+        Transition bTransition = new Transition(q1, "b", q2);
+        bTransition.Apply();
+
+        Transition bStartTransition = new Transition(q2, "b", q2);
+        bStartTransition.Apply();
+
+        Transition cTransition = new Transition(q2, "c", q3);
+        cTransition.Apply();
+
+        auto.AddStartingState(q0);
+        auto.AddAcceptingState(q2);
+        auto.AddAcceptingState(q3);
+
+        auto.SetStateName();
+
+        Assert.True(auto.AcceptsWord("b"));
+        Assert.True(auto.AcceptsWord("aab"));
+        Assert.True(auto.AcceptsWord("aaab"));
+        Assert.True(auto.AcceptsWord("ab"));
+        Assert.True(auto.AcceptsWord("abc"));
+        Assert.True(auto.AcceptsWord("abbc"));
+        Assert.True(auto.AcceptsWord("abbbbc"));
+
+        Assert.False(auto.AcceptsWord("ac"));
+    }
+
 }
