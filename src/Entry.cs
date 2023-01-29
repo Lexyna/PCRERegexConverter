@@ -38,20 +38,11 @@ public class Entry
         ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
         parser.Simplify();
 
-
-        GroupToken gt = new GroupToken("");
-
-        gt.AddTokenStream(parser.Simplify());
-
         Console.WriteLine("s: " + parser.TokenStreamToString());
 
-        List<Token> testStream = new List<Token>();
+        List<Token> stream = parser.GetTokens();
 
-        testStream.Add(new TerminalToken("a"));
-        testStream.Add(new TerminalToken("b"));
-        testStream.Add(new TerminalToken("c"));
-
-        Automaton a = new Automaton(testStream);
+        Automaton a = new Automaton(stream);
         a.SetStateName();
 
         AutomatonVisualizer visualizer = new AutomatonVisualizer(a.startStates[0]);

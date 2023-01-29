@@ -159,6 +159,48 @@ public class AutomatonBuilderTests
     }
 
     [Fact]
+    public void AutomatonAStarBOptional()
+    {
+
+        List<Token> stream = new List<Token>();
+        stream.Add(new TerminalToken("a"));
+        stream.Add(new StarToken());
+        stream.Add(new TerminalToken("b"));
+        stream.Add(new OptionalToken());
+
+        Automaton auto = new Automaton(stream);
+        auto.SetStateName();
+
+
+        Assert.True(auto.AcceptsWord(""));
+        Assert.True(auto.AcceptsWord("a"));
+        Assert.True(auto.AcceptsWord("aab"));
+        Assert.True(auto.AcceptsWord("aa"));
+        Assert.True(auto.AcceptsWord("aaaab"));
+    }
+
+    [Fact]
+    public void AutomatonAOptionalBStar()
+    {
+
+        List<Token> stream = new List<Token>();
+        stream.Add(new TerminalToken("a"));
+        stream.Add(new OptionalToken());
+        stream.Add(new TerminalToken("b"));
+        stream.Add(new StarToken());
+
+        Automaton auto = new Automaton(stream);
+        auto.SetStateName();
+
+
+        Assert.True(auto.AcceptsWord(""));
+        Assert.True(auto.AcceptsWord("a"));
+        Assert.True(auto.AcceptsWord("ab"));
+        Assert.True(auto.AcceptsWord("abb"));
+        Assert.True(auto.AcceptsWord("bbbb"));
+    }
+
+    [Fact]
     public void AutomatonAAlternateB()
     {
 

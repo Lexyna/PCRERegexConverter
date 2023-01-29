@@ -143,7 +143,7 @@ public class AutomatonBuilder
         for (int i = 0; i < auto.acceptingStates.Count; i++)
             for (int j = 0; j < nextAutomaton.startStates.Count; j++)
             {
-                Transition t = new Transition(auto.acceptingStates[i], "", nextAutomaton.startStates[i]);
+                Transition t = new Transition(auto.acceptingStates[i], "", nextAutomaton.startStates[j]);
                 t.Apply();
             }
 
@@ -164,7 +164,7 @@ public class AutomatonBuilder
         for (int i = 0; i < auto.acceptingStates.Count; i++)
             for (int j = 0; j < nextAutomaton.startStates.Count; j++)
             {
-                Transition t = new Transition(auto.acceptingStates[i], "", nextAutomaton.startStates[i]);
+                Transition t = new Transition(auto.acceptingStates[i], "", nextAutomaton.startStates[j]);
                 t.Apply();
             }
 
@@ -179,7 +179,7 @@ public class AutomatonBuilder
         for (int i = 0; i < auto.acceptingStates.Count; i++)
             for (int j = 0; j < nextAutomaton.startStates.Count; j++)
             {
-                Transition t = new Transition(auto.acceptingStates[i], "", nextAutomaton.startStates[i]);
+                Transition t = new Transition(auto.acceptingStates[i], "", nextAutomaton.startStates[j]);
                 t.Apply();
             }
 
