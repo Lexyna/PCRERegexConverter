@@ -1,64 +1,16 @@
 public class Automaton
 {
-
-    public static Automaton buildAutomaton(List<Token> tokenStream)
-    {
-
-
-
-
-        return new Automaton();
-    }
-
-    public static void BuildTerminal(Automaton automaton, TerminalToken token)
-    {
-
-        if (automaton.acceptingStates.Count > 0)
-        {
-            State newAcceptingState = new State("TerminalState");
-            newAcceptingState.SetEndState(true);
-            for (int i = automaton.acceptingStates.Count - 1; i >= 0; i--)
-            {
-                Transition t = new Transition(automaton.acceptingStates[i], token.symbol, newAcceptingState);
-                t.Apply();
-
-                automaton.acceptingStates[i].SetEndState(false);
-                automaton.RemoveAcceptingState(i);
-
-            }
-            automaton.AddAcceptingState(newAcceptingState);
-            return;
-        }
-
-        State start = new State("S");
-        State newTransitionState = new State("TerminalState");
-        newTransitionState.SetEndState(true);
-
-        Transition transition = new Transition(start, token.symbol, newTransitionState);
-        start.AddOutgoingTransition(transition);
-        automaton.AddStartingState(start);
-
-        newTransitionState.AddIngoingTransition(transition);
-        automaton.AddAcceptingState(newTransitionState);
-    }
-
-    //Class properties
-
     public List<State> startStates { get; private set; }
     public List<State> acceptingStates { get; private set; }
 
     //Reference to the token sequence defining this Automaton
     private List<Token> tokenStream;
 
-    //Child Automaton
-    private List<Automaton> innerAutomaton;
-
     public Automaton()
     {
         startStates = new List<State>();
         acceptingStates = new List<State>();
         tokenStream = new List<Token>();
-        innerAutomaton = new List<Automaton>();
     }
 
     public Automaton(List<Token> tokenStream)
@@ -66,26 +18,14 @@ public class Automaton
         startStates = new List<State>();
         acceptingStates = new List<State>();
         this.tokenStream = tokenStream;
-        innerAutomaton = new List<Automaton>();
-        ConvertTokenStream();
-    }
 
-    private void ConvertTokenStream()
-    {
+        State start = new State("");
+        start.SetEndState(true);
+        AddAcceptingState(start);
+        AddStartingState(start);
 
-        if (tokenStream.Count == 0) return;
-
-        for (int i = 0; i < tokenStream.Count; i++)
-        {
-
-            switch (tokenStream[i].tokenOP)
-            {
-                case Token.OP.Terminal: Automaton.BuildTerminal(this, (TerminalToken)tokenStream[i]); break;
-                default: Console.WriteLine("Couldn't process  token" + tokenStream[i].tokenOP); break;
-            }
-
-        }
-
+        AutomatonBuilder builder = new AutomatonBuilder(tokenStream, this);
+        builder.build();
     }
 
     public void AddStartingState(State state)
@@ -108,7 +48,7 @@ public class Automaton
         Returns if this Automaton is optional. 
         Automatons are optional, if either any start State is an accepting end State, or
         if one can be reach over epsilon Transitions from any start State
-    */
+*/
     public bool IsOptional()
     {
         for (int i = 0; i < startStates.Count; i++)
