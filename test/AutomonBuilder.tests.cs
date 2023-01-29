@@ -183,6 +183,32 @@ public class AutomatonBuilderTests
     }
 
     [Fact]
+    public void AutomatonStarGroup()
+    {
+
+        //regex: (ab)?
+
+        List<Token> g1s = new List<Token>();
+        g1s.Add(new TerminalToken("a"));
+        g1s.Add(new TerminalToken("b"));
+
+        GroupToken g1 = new GroupToken("");
+        g1.AddTokenStream(g1s);
+
+        List<Token> stream = new List<Token>();
+        stream.Add(g1);
+        stream.Add(new StarToken());
+
+        Automaton auto = new Automaton(stream);
+        auto.SetStateName();
+
+        Assert.True(auto.AcceptsWord(""));
+        Assert.True(auto.AcceptsWord("ab"));
+        Assert.True(auto.AcceptsWord("abab"));
+        Assert.True(auto.AcceptsWord("ababab"));
+    }
+
+    [Fact]
     public void AutomatonOptionalGroupC()
     {
 
