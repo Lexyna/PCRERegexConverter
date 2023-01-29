@@ -4,17 +4,32 @@ public class AutomatonBuilder
     List<Token> stream;
     int index = 0;
 
+    Automaton mainAutomaton;
+
     Automaton auto;
+
+    bool isSubAutomaton = false;
 
     public AutomatonBuilder(List<Token> stream, Automaton auto)
     {
         this.stream = stream;
+        this.mainAutomaton = auto;
         this.auto = auto;
     }
 
     public void build()
     {
         AppendToken();
+        ApplySubEndStates();
+    }
+
+    private void ApplySubEndStates()
+    {
+
+        if (!isSubAutomaton) return;
+
+        auto.acceptingStates.ForEach(s => mainAutomaton.AddAcceptingState(s));
+
     }
 
     public void AppendToken()
@@ -37,6 +52,7 @@ public class AutomatonBuilder
 
     public void CreateNewAutomaton()
     {
+        ApplySubEndStates();
 
         Automaton alternateAutomaton = new Automaton();
 
@@ -46,6 +62,7 @@ public class AutomatonBuilder
         alternateAutomaton.startStates.ForEach(s => alternateAutomaton.AddAcceptingState(s));
 
         this.auto = alternateAutomaton;
+        isSubAutomaton = true;
     }
 
     public void AppendTerminal()

@@ -217,6 +217,30 @@ public class AutomatonBuilderTests
     }
 
     [Fact]
+    public void AutomatonAlternateABThenC()
+    {
+
+        GroupToken g = new GroupToken("");
+
+        List<Token> gs = new List<Token>();
+        gs.Add(new TerminalToken("a"));
+        gs.Add(new AlternateToken());
+        gs.Add(new TerminalToken("b"));
+
+        g.AddTokenStream(gs);
+
+        List<Token> stream = new List<Token>();
+        stream.Add(g);
+        stream.Add(new TerminalToken("c"));
+
+        Automaton auto = new Automaton(stream);
+        auto.SetStateName();
+
+        Assert.True(auto.AcceptsWord("ac"));
+        Assert.True(auto.AcceptsWord("bc"));
+    }
+
+    [Fact]
     public void AutomatonAAlternateBOptional()
     {
 
