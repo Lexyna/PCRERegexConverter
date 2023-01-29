@@ -19,6 +19,8 @@ public class AutomatonBuilder
 
     public void AppendToken()
     {
+        if (index >= stream.Count) return;
+
         switch (stream[index].tokenOP)
         {
             case Token.OP.Terminal: AppendTerminal(); break;

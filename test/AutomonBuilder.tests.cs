@@ -212,6 +212,28 @@ public class AutomatonBuilderTests
     }
 
     [Fact]
+    public void AutomatonEmptyGroup()
+    {
+
+        //regex: ()a
+
+        List<Token> g1s = new List<Token>();
+
+        GroupToken g1 = new GroupToken("");
+        g1.AddTokenStream(g1s);
+
+        List<Token> stream = new List<Token>();
+        stream.Add(g1);
+        stream.Add(new TerminalToken("a"));
+
+        Automaton auto = new Automaton(stream);
+        auto.SetStateName();
+
+        Assert.True(auto.AcceptsWord("a"));
+        Assert.False(auto.AcceptsWord(""));
+    }
+
+    [Fact]
     public void AutomatonOptionalGroup()
     {
 
