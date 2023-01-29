@@ -4,72 +4,83 @@ public class AutomatonBuilder
     List<Token> stream;
     int index = 0;
 
-    Automaton main;
+    Automaton auto;
 
-    Automaton? last;
-
-    public AutomatonBuilder(List<Token> stream, Automaton main)
+    public AutomatonBuilder(List<Token> stream, Automaton auto)
     {
         this.stream = stream;
-        this.main = main;
+        this.auto = auto;
     }
 
     public void build()
     {
-        AppendToken(main);
+        AppendToken();
     }
 
-    public void AppendToken(Automaton auto)
+    public void AppendToken()
     {
         switch (stream[index].tokenOP)
         {
-            case Token.OP.Terminal: AppendTerminal(auto); break;
-            case Token.OP.Group: AppendGroup(auto); break;
-            case Token.OP.Alternate: break;
+            case Token.OP.Terminal: AppendTerminal(); break;
+            case Token.OP.Group: AppendGroup(); break;
+            case Token.OP.Alternate: CreateNewAutomaton(); break;
             default: break;
         }
 
         index++;
 
         if (index < stream.Count)
-            AppendToken(auto);
+            AppendToken();
     }
 
-    public void AppendTerminal(Automaton auto)
+    public void CreateNewAutomaton()
+    {
+
+        Automaton alternateAutomaton = new Automaton();
+
+        auto.startStates.ForEach(s => alternateAutomaton.AddStartingState(s));
+
+        alternateAutomaton.startStates.ForEach(s => s.SetEndState(true));
+        alternateAutomaton.startStates.ForEach(s => alternateAutomaton.AddAcceptingState(s));
+
+        this.auto = alternateAutomaton;
+    }
+
+    public void AppendTerminal()
     {
         if (index + 1 >= stream.Count)
         {
-            ConcatTerminal(auto, (TerminalToken)stream[index]);
+            ConcatTerminal((TerminalToken)stream[index]);
             return;
         }
 
         switch (stream[index + 1].tokenOP)
         {
-            case Token.OP.Optional: ConcatOptionalTerminal(auto, (TerminalToken)stream[index]); break;
-            case Token.OP.Star: ConcatStarTerminal(auto, (TerminalToken)stream[index]); break;
-            default: ConcatTerminal(auto, (TerminalToken)stream[index]); break;
+            case Token.OP.Optional: ConcatOptionalTerminal((TerminalToken)stream[index]); break;
+            case Token.OP.Star: ConcatStarTerminal((TerminalToken)stream[index]); break;
+            default: ConcatTerminal((TerminalToken)stream[index]); break;
         }
 
     }
 
-    public void AppendGroup(Automaton auto)
+    public void AppendGroup()
     {
         if (index + 1 >= stream.Count)
         {
-            ConcatGroup(auto, (GroupToken)stream[index]);
+            ConcatGroup((GroupToken)stream[index]);
             return;
         }
 
         switch (stream[index + 1].tokenOP)
         {
-            case Token.OP.Optional: ConcatOptionalGroup(auto, (GroupToken)stream[index]); break;
-            case Token.OP.Star: ConcatStarGroup(auto, (GroupToken)stream[index]); break;
-            default: ConcatGroup(auto, (GroupToken)stream[index]); break;
+            case Token.OP.Optional: ConcatOptionalGroup((GroupToken)stream[index]); break;
+            case Token.OP.Star: ConcatStarGroup((GroupToken)stream[index]); break;
+            default: ConcatGroup((GroupToken)stream[index]); break;
         }
 
     }
 
-    public void ConcatTerminal(Automaton auto, TerminalToken token)
+    public void ConcatTerminal(TerminalToken token)
     {
 
         State nextState = new State("");
@@ -89,7 +100,7 @@ public class AutomatonBuilder
         auto.AddAcceptingState(nextState);
     }
 
-    public void ConcatOptionalTerminal(Automaton auto, TerminalToken token)
+    public void ConcatOptionalTerminal(TerminalToken token)
     {
 
         State nextState = new State("");
@@ -104,7 +115,7 @@ public class AutomatonBuilder
 
     }
 
-    public void ConcatStarTerminal(Automaton auto, TerminalToken token)
+    public void ConcatStarTerminal(TerminalToken token)
     {
 
         State nextState = new State("");
@@ -122,7 +133,7 @@ public class AutomatonBuilder
 
     }
 
-    public void ConcatGroup(Automaton auto, GroupToken token)
+    public void ConcatGroup(GroupToken token)
     {
 
         Automaton nextAutomaton = new Automaton(token.GetTokens());
@@ -143,7 +154,7 @@ public class AutomatonBuilder
         nextAutomaton.acceptingStates.ForEach(s => auto.AddAcceptingState(s));
     }
 
-    public void ConcatOptionalGroup(Automaton auto, GroupToken token)
+    public void ConcatOptionalGroup(GroupToken token)
     {
 
         Automaton nextAutomaton = new Automaton(token.GetTokens());
@@ -156,10 +167,9 @@ public class AutomatonBuilder
             }
 
         nextAutomaton.acceptingStates.ForEach(s => auto.AddAcceptingState(s));
-        last = nextAutomaton;
     }
 
-    public void ConcatStarGroup(Automaton auto, GroupToken token)
+    public void ConcatStarGroup(GroupToken token)
     {
 
         Automaton nextAutomaton = new Automaton(token.GetTokens());
@@ -179,7 +189,6 @@ public class AutomatonBuilder
             }
 
         nextAutomaton.acceptingStates.ForEach(s => auto.AddAcceptingState(s));
-        last = nextAutomaton;
     }
 
 }

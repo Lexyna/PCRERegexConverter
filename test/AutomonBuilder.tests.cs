@@ -159,6 +159,59 @@ public class AutomatonBuilderTests
     }
 
     [Fact]
+    public void AutomatonAAlternateB()
+    {
+
+        List<Token> stream = new List<Token>();
+        stream.Add(new TerminalToken("a"));
+        stream.Add(new AlternateToken());
+        stream.Add(new TerminalToken("b"));
+
+        Automaton auto = new Automaton(stream);
+        auto.SetStateName();
+
+        Assert.True(auto.AcceptsWord("a"));
+        Assert.True(auto.AcceptsWord("b"));
+    }
+
+    [Fact]
+    public void AutomatonAAlternateBOptional()
+    {
+
+        List<Token> stream = new List<Token>();
+        stream.Add(new TerminalToken("a"));
+        stream.Add(new AlternateToken());
+        stream.Add(new TerminalToken("b"));
+        stream.Add(new OptionalToken());
+
+        Automaton auto = new Automaton(stream);
+        auto.SetStateName();
+
+        Assert.True(auto.AcceptsWord(""));
+        Assert.True(auto.AcceptsWord("a"));
+        Assert.True(auto.AcceptsWord("b"));
+    }
+
+    [Fact]
+    public void AutomatonAAlternateBOptionalC()
+    {
+
+        List<Token> stream = new List<Token>();
+        stream.Add(new TerminalToken("a"));
+        stream.Add(new AlternateToken());
+        stream.Add(new TerminalToken("b"));
+        stream.Add(new OptionalToken());
+        stream.Add(new TerminalToken("c"));
+
+        Automaton auto = new Automaton(stream);
+        auto.SetStateName();
+
+        Assert.True(auto.AcceptsWord("a"));
+        Assert.True(auto.AcceptsWord("bc"));
+        Assert.True(auto.AcceptsWord("c"));
+    }
+
+    [Fact]
     public void AutomatonOptionalGroup()
     {
 
@@ -300,6 +353,81 @@ public class AutomatonBuilderTests
         Assert.False(auto.AcceptsWord("ab"));
         Assert.False(auto.AcceptsWord("c"));
         Assert.False(auto.AcceptsWord(""));
+
+    }
+
+    [Fact]
+    public void AutomatonGroupABORGroupCD()
+    {
+
+        //regex: (ab)|(cd)
+
+        List<Token> g1s = new List<Token>();
+        g1s.Add(new TerminalToken("a"));
+        g1s.Add(new TerminalToken("b"));
+
+        GroupToken g1 = new GroupToken("");
+        g1.AddTokenStream(g1s);
+
+        List<Token> g2s = new List<Token>();
+        g2s.Add(new TerminalToken("c"));
+        g2s.Add(new TerminalToken("d"));
+
+        GroupToken g2 = new GroupToken("");
+        g2.AddTokenStream(g2s);
+
+        List<Token> stream = new List<Token>();
+        stream.Add(g1);
+        stream.Add(new AlternateToken());
+        stream.Add(g2);
+
+        Automaton auto = new Automaton(stream);
+        auto.SetStateName();
+
+        Assert.True(auto.AcceptsWord("ab"));
+        Assert.True(auto.AcceptsWord("cd"));
+
+        Assert.False(auto.AcceptsWord("a"));
+        Assert.False(auto.AcceptsWord("c"));
+        Assert.False(auto.AcceptsWord("abcd"));
+
+    }
+
+    [Fact]
+    public void AutomatonGroupABORGroupCDOptional()
+    {
+        //regex: (ab)|(cd)?
+
+        List<Token> g1s = new List<Token>();
+        g1s.Add(new TerminalToken("a"));
+        g1s.Add(new TerminalToken("b"));
+
+        GroupToken g1 = new GroupToken("");
+        g1.AddTokenStream(g1s);
+
+        List<Token> g2s = new List<Token>();
+        g2s.Add(new TerminalToken("c"));
+        g2s.Add(new TerminalToken("d"));
+
+        GroupToken g2 = new GroupToken("");
+        g2.AddTokenStream(g2s);
+
+        List<Token> stream = new List<Token>();
+        stream.Add(g1);
+        stream.Add(new AlternateToken());
+        stream.Add(g2);
+        stream.Add(new OptionalToken());
+
+        Automaton auto = new Automaton(stream);
+        auto.SetStateName();
+
+        Assert.True(auto.AcceptsWord(""));
+        Assert.True(auto.AcceptsWord("ab"));
+        Assert.True(auto.AcceptsWord("cd"));
+
+        Assert.False(auto.AcceptsWord("a"));
+        Assert.False(auto.AcceptsWord("c"));
+        Assert.False(auto.AcceptsWord("abcd"));
 
     }
 
