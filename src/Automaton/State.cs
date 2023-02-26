@@ -54,6 +54,9 @@ public class State
         for (int i = ingoing.Count - 1; i >= 0; i--)
             if (ingoing[i].delete) ingoing.RemoveAt(i);
 
+        for (int i = outgoing.Count - 1; i >= 0; i--)
+            if (outgoing[i].delete) outgoing.RemoveAt(i);
+
     }
 
     public List<Transition> GetIngoingTransitions() { return ingoing; }

@@ -39,6 +39,7 @@ public class AutomatonVisualizer
     {
 
         state.visited = true;
+        graph.AddNode(state.id);
 
         foreach (Transition t in state.GetOutgoingTransitions())
         {
