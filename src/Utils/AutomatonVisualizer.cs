@@ -45,21 +45,17 @@ public class AutomatonVisualizer
             string label = String.IsNullOrEmpty(t.symbol) ? "ε" : t.symbol;
             graph.AddEdge(state.id, label, t.GetOutState().id);
 
-            Node left = graph.FindNode(state.id);
-            Node right = graph.FindNode(t.GetOutState().id);
-
-            left.Attr.Shape = Shape.Circle;
-            right.Attr.Shape = Shape.Circle;
-
             if (!t.GetOutState().visited)
                 CreateEdges(graph, t.GetOutState(), false);
         }
 
+        Node node = graph.FindNode(state.id);
+        node.Attr.Shape = Shape.Circle;
+
         if (!state.isEndState) return;
 
-        Node endNode = graph.FindNode(state.id);
-        endNode.Attr.Shape = Shape.DoubleCircle;
-        endNode.Attr.FillColor = Microsoft.Msagl.Drawing.Color.Red;
+        node.Attr.Shape = Shape.DoubleCircle;
+        node.Attr.FillColor = Microsoft.Msagl.Drawing.Color.Red;
 
     }
 
