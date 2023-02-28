@@ -47,6 +47,11 @@ public class Entry
 
         EpsilonEliminator.RemoveEpsilonFromState(a.startStates[0]);
 
+        for (int i = 1; i < args.Length; i++)
+        {
+            Console.WriteLine($"Regex Accepts \"{args[i]}\":{a.AcceptsWord(args[i])}\n");
+        }
+
         AutomatonVisualizer visualizer = new AutomatonVisualizer(a.startStates[0]);
 
     }
