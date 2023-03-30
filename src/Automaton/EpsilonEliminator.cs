@@ -1,16 +1,23 @@
 public static class EpsilonEliminator
 {
 
-    public static void RemoveEpsilonFromState(State state)
+    private static Dictionary<string, bool> visited = new Dictionary<string, bool>();
+
+    public static void RemoveEpsilonFromState(State state, bool init = true)
     {
+        if (init)
+            visited = new Dictionary<string, bool>();
+
+        if (!visited.ContainsKey(state.id))
+            visited.Add(state.id, true);
 
         int epsilonIndex = HasEpsilonTransition(state);
 
         if (epsilonIndex == -1)
         {
             foreach (Transition t in state.GetOutgoingTransitions())
-                if (t.GetOutState().id != state.id)
-                    RemoveEpsilonFromState(t.GetOutState());
+                if (t.GetOutState().id != state.id && !visited.ContainsKey(t.GetOutState().id))
+                    RemoveEpsilonFromState(t.GetOutState(), false);
             return;
         }
 
@@ -23,7 +30,7 @@ public static class EpsilonEliminator
         RemoveEpsilonTransitionToNode(state, state.GetOutgoingTransitions()[epsilonIndex].GetOutState());
         state.GetOutgoingTransitions()[epsilonIndex].Delete();
 
-        RemoveEpsilonFromState(state);
+        RemoveEpsilonFromState(state, false);
     }
 
     private static int HasEpsilonTransition(State s)

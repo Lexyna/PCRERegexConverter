@@ -2,7 +2,6 @@ using Xunit;
 
 public class EpsilonEliminatorTests
 {
-
     [Fact]
     public void RemoveEpsilonTransition()
     {
@@ -215,6 +214,172 @@ public class EpsilonEliminatorTests
 
         Assert.Empty(s1.GetOutgoingTransitions());
         Assert.True(s1.isEndState);
+    }
+
+    [Fact]
+    public void EliminateEpsilonForRegex1()
+    {
+        //Regex a(ab*)*
+
+        const string regex = "a(ab*)*";
+
+        Lexer lexer = new Lexer(regex);
+        lexer.Tokenize();
+
+        lexer.GetTokens().ForEach(t =>
+        {
+            if (t.tokenOP != Token.OP.Class) return;
+            ((ClassToken)t).ConvertToGroup();
+        });
+
+        ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
+        parser.Simplify();
+
+        Automaton automaton = new Automaton(parser.GetTokens());
+        automaton.SetStateName();
+
+        Assert.True(automaton.AcceptsWord("a"));
+        Assert.True(automaton.AcceptsWord("aab"));
+        Assert.True(automaton.AcceptsWord("aabab"));
+        Assert.True(automaton.AcceptsWord("aababab"));
+        Assert.True(automaton.AcceptsWord("aaaaaaaa"));
+
+        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
+
+        Assert.True(automaton.AcceptsWord("a"));
+        Assert.True(automaton.AcceptsWord("aab"));
+        Assert.True(automaton.AcceptsWord("aabab"));
+        Assert.True(automaton.AcceptsWord("aababab"));
+        Assert.True(automaton.AcceptsWord("aaaaaaaa"));
+
+    }
+
+    [Fact]
+    public void EliminateEpsilonForRegex2()
+    {
+        //Regex a(ab*)+
+
+        const string regex = "a(ab*)+";
+
+        Lexer lexer = new Lexer(regex);
+        lexer.Tokenize();
+
+        lexer.GetTokens().ForEach(t =>
+        {
+            if (t.tokenOP != Token.OP.Class) return;
+            ((ClassToken)t).ConvertToGroup();
+        });
+
+        ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
+        parser.Simplify();
+
+        Automaton automaton = new Automaton(parser.GetTokens());
+        automaton.SetStateName();
+
+        Assert.True(automaton.AcceptsWord("aabbbbbb"));
+        Assert.True(automaton.AcceptsWord("aababab"));
+        Assert.True(automaton.AcceptsWord("aabaaabbbbbaaabb"));
+        Assert.True(automaton.AcceptsWord("aab"));
+        Assert.True(automaton.AcceptsWord("aabab"));
+        Assert.True(automaton.AcceptsWord("aababab"));
+        Assert.True(automaton.AcceptsWord("aaaaaaaa"));
+
+        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
+
+        Assert.True(automaton.AcceptsWord("aabbbbbb"));
+        Assert.True(automaton.AcceptsWord("aababab"));
+        Assert.True(automaton.AcceptsWord("aabaaabbbbbaaabb"));
+        Assert.True(automaton.AcceptsWord("aab"));
+        Assert.True(automaton.AcceptsWord("aabab"));
+        Assert.True(automaton.AcceptsWord("aababab"));
+        Assert.True(automaton.AcceptsWord("aaaaaaaa"));
+
+    }
+
+    [Fact]
+    public void EliminateEpsilonForRegex3()
+    {
+        //Regex a(ab*c)+
+
+        const string regex = "a(ab*c)+";
+
+        Lexer lexer = new Lexer(regex);
+        lexer.Tokenize();
+
+        lexer.GetTokens().ForEach(t =>
+        {
+            if (t.tokenOP != Token.OP.Class) return;
+            ((ClassToken)t).ConvertToGroup();
+        });
+
+        ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
+        parser.Simplify();
+
+        Automaton automaton = new Automaton(parser.GetTokens());
+        automaton.SetStateName();
+
+        Assert.True(automaton.AcceptsWord("aac"));
+        Assert.True(automaton.AcceptsWord("aabc"));
+        Assert.True(automaton.AcceptsWord("aabbbbbc"));
+        Assert.True(automaton.AcceptsWord("aabcabc"));
+        Assert.True(automaton.AcceptsWord("aabbcabbbbcac"));
+
+        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
+
+        Assert.True(automaton.AcceptsWord("aac"));
+        Assert.True(automaton.AcceptsWord("aabc"));
+        Assert.True(automaton.AcceptsWord("aabbbbbc"));
+        Assert.True(automaton.AcceptsWord("aabcabc"));
+        Assert.True(automaton.AcceptsWord("aabbcabbbbcac"));
+
+    }
+
+    [Fact]
+    public void EliminateEpsilonForRegex4()
+    {
+        //Regex a(a?b*c)+
+
+        const string regex = "a(a?b*c)+";
+
+        Lexer lexer = new Lexer(regex);
+        lexer.Tokenize();
+
+        lexer.GetTokens().ForEach(t =>
+        {
+            if (t.tokenOP != Token.OP.Class) return;
+            ((ClassToken)t).ConvertToGroup();
+        });
+
+        ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
+        parser.Simplify();
+
+        Automaton automaton = new Automaton(parser.GetTokens());
+        automaton.SetStateName();
+
+        Assert.True(automaton.AcceptsWord("aac"));
+        Assert.True(automaton.AcceptsWord("aabc"));
+        Assert.True(automaton.AcceptsWord("aabbbbbc"));
+        Assert.True(automaton.AcceptsWord("aabcabc"));
+        Assert.True(automaton.AcceptsWord("aabbcabbbbcac"));
+
+        Assert.True(automaton.AcceptsWord("ac"));
+        Assert.True(automaton.AcceptsWord("aabc"));
+        Assert.True(automaton.AcceptsWord("aabcbc"));
+        Assert.True(automaton.AcceptsWord("abcbcbcbbc"));
+
+        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
+
+        Assert.True(automaton.AcceptsWord("aac"));
+        Assert.True(automaton.AcceptsWord("aabc"));
+        Assert.True(automaton.AcceptsWord("aabbbbbc"));
+        Assert.True(automaton.AcceptsWord("aabcabc"));
+        Assert.True(automaton.AcceptsWord("aabbcabbbbcac"));
+
+        Assert.True(automaton.AcceptsWord("ac"));
+        Assert.True(automaton.AcceptsWord("aabc"));
+        Assert.True(automaton.AcceptsWord("aabcbc"));
+        Assert.True(automaton.AcceptsWord("abcbcbcbbc"));
+
     }
 
 }
