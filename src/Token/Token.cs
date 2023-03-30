@@ -32,6 +32,17 @@ public abstract class Token
         this.tokenOP = tokenOP;
     }
 
+    public string PrintTokenStream()
+    {
+
+        string regex = "";
+
+        for (int i = 0; i < this.internalTokens.Count; i++)
+            regex += " " + this.internalTokens[i].tokenOP;
+
+        return regex;
+    }
+
     public override string ToString()
     {
         return symbol;

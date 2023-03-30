@@ -15,7 +15,13 @@ public class ParserSimplifier
     {
         Console.WriteLine("-------------- Simplifying tokens -----------------------");
 
+        Console.WriteLine("Original: " + TokenStreamToString());
+        Console.WriteLine("Stream: " + PrintTokenStream());
+
         this.tokens = Groupification();
+
+        Console.WriteLine("Simplified: " + TokenStreamToString());
+        Console.WriteLine("Stream: " + PrintTokenStream());
 
         return tokens;
     }
@@ -58,9 +64,13 @@ public class ParserSimplifier
                     break;
                 case 1:
                     GroupToken gt = new GroupToken("");
-                    gt.AddToken(tokenToAdd);
+                    GroupToken left = new GroupToken("");
+                    left.AddToken(tokenToAdd);
+                    gt.AddToken(left);
+                    //gt.AddToken(tokenToAdd);
                     gt.AddToken(new AlternateToken());
-                    gt.AddToken(new EpsilonToken());
+                    //gt.AddToken(new EpsilonToken());
+                    gt.AddToken(new GroupToken(""));
                     mainGroup.AddToken(gt);
                     i += 2;
                     break;
@@ -160,6 +170,17 @@ public class ParserSimplifier
 
         for (int i = 0; i < tokens.Count; i++)
             regex += tokens[i].ToString();
+
+        return regex;
+    }
+
+    public string PrintTokenStream()
+    {
+
+        string regex = "";
+
+        for (int i = 0; i < this.tokens.Count; i++)
+            regex += " " + this.tokens[i].tokenOP;
 
         return regex;
     }

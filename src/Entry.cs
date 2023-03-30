@@ -1,10 +1,18 @@
 using System;
-
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 public class Entry
 {
 
+    [DllImport("kernel32.dll")]
+    static extern bool AttachConsole(int dwProcessId);
+    private const int ATTACH_PARENT_PROCESS = -1;
+
+    [STAThread]
     public static void Main(string[] args)
     {
+
+        AttachConsole(ATTACH_PARENT_PROCESS);
 
         if (args.Length < 1)
         {
@@ -30,9 +38,21 @@ public class Entry
         ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
         parser.Simplify();
 
-        Console.WriteLine("Simplified regex:");
+        Console.WriteLine("s: " + parser.TokenStreamToString());
 
-        Console.WriteLine(parser.TokenStreamToString());
+        List<Token> stream = parser.GetTokens();
+
+        Automaton a = new Automaton(stream);
+        a.SetStateName();
+
+        EpsilonEliminator.RemoveEpsilonFromState(a.startStates[0]);
+
+        for (int i = 1; i < args.Length; i++)
+        {
+            Console.WriteLine($"Regex Accepts \"{args[i]}\":{a.AcceptsWord(args[i])}\n");
+        }
+
+        AutomatonVisualizer visualizer = new AutomatonVisualizer(a.startStates[0]);
 
     }
 

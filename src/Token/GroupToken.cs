@@ -42,31 +42,18 @@ public class GroupToken : Token
 
         for (int i = 0; i < internalTokens.Count; i++)
         {
-            if (internalTokens[i].tokenOP == OP.Alternate)
+            if ((internalTokens[i].tokenOP != OP.Group) &&
+                internalTokens[i].tokenOP != OP.Alternate)
             {
-                isDNF = false;
-                break;
+                return false;
             }
-        }
 
-        if (!isDNF)
-        {
-            isDNF = true;
-            for (int i = 0; i < internalTokens.Count; i++)
-            {
-                if ((internalTokens[i].tokenOP != OP.Group) &&
-                    internalTokens[i].tokenOP != OP.Alternate)
-                {
-                    return false;
-                }
+            if (i % 2 == 0 && internalTokens[i].tokenOP != OP.Group)
+                return false;
 
-                if (i % 2 == 0 && internalTokens[i].tokenOP != OP.Group)
-                    return false;
+            if (i % 2 == 1 && internalTokens[i].tokenOP != OP.Alternate)
+                return false;
 
-                if (i % 2 == 1 && internalTokens[i].tokenOP != OP.Alternate)
-                    return false;
-
-            }
         }
 
         return isDNF;
@@ -104,5 +91,4 @@ public class GroupToken : Token
         regex += ")";
         return regex;
     }
-
 }

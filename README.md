@@ -2,12 +2,12 @@
 
 To compile the project, run the following from within the projects root folder:
 ```
- csc src\* src\Automaton\* src\Token\* 
+ dotnet build
  ```
 
- To run the Project, enter the following command at the root of the 'Entry.exe' file:
+ To run the Project, enter the following command at the root directory:
  ```
- Entry.exe "[regex]"
+ dotnet run "[regex]"
  ``` 
 
  where ```[regex]``` is your *regular* PCRE string.
