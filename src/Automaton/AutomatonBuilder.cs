@@ -41,6 +41,7 @@ public class AutomatonBuilder
             case Token.OP.Terminal: AppendTerminal(); break;
             case Token.OP.Group: AppendGroup(); break;
             case Token.OP.Alternate: CreateNewAutomaton(); break;
+            case Token.OP.Lookahead: CreateLookaheadSubAutomaton(); break;
             default: break;
         }
 
@@ -63,6 +64,20 @@ public class AutomatonBuilder
 
         this.auto = alternateAutomaton;
         isSubAutomaton = true;
+    }
+
+    public void CreateLookaheadSubAutomaton()
+    {
+
+        LookaheadToken lookahead = (LookaheadToken)stream[index];
+
+        Console.WriteLine("la: ");
+        Console.WriteLine(lookahead.symbol);
+
+        Automaton automaton = new Automaton();
+
+
+
     }
 
     public void AppendTerminal()
