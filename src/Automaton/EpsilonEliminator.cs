@@ -68,6 +68,14 @@ public static class EpsilonEliminator
             }
         }
 
+        for (int i = 0; i < v2.GetOutgoingTransitions().Count; i++)
+            if (v2.GetOutgoingTransitions()[i].universal)
+            {
+                Transition lookaheadTransition = new Transition(v1, "", v2.GetOutgoingTransitions()[i].GetOutState(), true);
+                lookaheadTransition.Apply();
+            }
+
+
         if (v2.isEndState)
             v1.SetEndState(true);
 
@@ -78,7 +86,8 @@ public static class EpsilonEliminator
 
         for (int i = 0; i < s.GetOutgoingTransitions().Count; i++)
         {
-            if (reachable.ContainsKey(s.GetOutgoingTransitions()[i].uuid)) continue;
+            if (reachable.ContainsKey(s.GetOutgoingTransitions()[i].uuid)
+            || s.GetOutgoingTransitions()[i].universal) continue;
 
             reachable.Add(s.GetOutgoingTransitions()[i].uuid, s.GetOutgoingTransitions()[i]);
 
