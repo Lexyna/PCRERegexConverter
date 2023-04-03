@@ -9,7 +9,7 @@ public class Transition
 
     public bool delete { get; private set; }
 
-    private bool universal;
+    public bool universal { get; private set; }
 
     public Transition(State inS, string symbol, State outS, bool universal = false)
     {

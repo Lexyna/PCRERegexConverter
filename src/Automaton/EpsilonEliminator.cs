@@ -36,7 +36,7 @@ public static class EpsilonEliminator
     private static int HasEpsilonTransition(State s)
     {
         for (int i = 0; i < s.GetOutgoingTransitions().Count; i++)
-            if (s.GetOutgoingTransitions()[i].symbol == "")
+            if (s.GetOutgoingTransitions()[i].symbol == "" && !s.GetOutgoingTransitions()[i].universal)
                 return i;
         return -1;
     }
