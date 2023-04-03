@@ -5,9 +5,9 @@ public class AFAToNFAConverter
 
     public Automaton nfa { get; private set; }
 
-    //true if we currently calculate the power set for a given lookahead sub automaton
-    //Prevents calculation of other power sets at the time 
-    private bool calculate_power_set = false;
+    //If the power set for a lookahead automaton is created, but the Created power set itself contain another lookahead,
+    //the endStates can not be assigned without resolving the other lookaheads. Pseudo Mode disables the setting of endStates.
+    private bool pseudoMode = false;
 
     public AFAToNFAConverter(Automaton afa)
     {
@@ -74,15 +74,32 @@ public class AFAToNFAConverter
     {
         //Keeps track of all already created states
         Dictionary<string, bool> visited = new Dictionary<string, bool>();
+        //List of all pseudoEndStates, a pseudo endState is a endState, that cannot be applied, since it contains at least one unresolved lookahead
+        Dictionary<string, bool> pseudoEndStates = new Dictionary<string, bool>();
+
+        List<State> possible = new List<State>() { universalTransition.GetInState() };
+
+        CreatePowerSet(entry, possible, visited, pseudoEndStates, universalTransition.uuid);
+    }
+
+    //
+    private void CreatePowerSet(State curr, List<State> possible, Dictionary<string, bool> visited, Dictionary<string, bool> pseudoEndStates, string? uuid = null)
+    {
 
 
 
     }
 
-    //
-    private void CreatePowerSet(State curr, List<State> possible)
+    private bool ContainsUniversalTransition(State state, string? uuid = null)
     {
+        for (int i = 0; i < state.GetOutgoingTransitions().Count; i++)
+            if (uuid == null && state.GetOutgoingTransitions()[i].universal)
+                return true;
+            else if (uuid != null)
+                if (state.GetOutgoingTransitions()[i].universal && state.GetOutgoingTransitions()[i].uuid != uuid)
+                    return true;
 
+        return false;
     }
 
 }
