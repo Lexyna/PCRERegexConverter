@@ -24,4 +24,6 @@ public class LookaheadToken : Token
 
     }
 
+    public List<Token> GetToken() { return this.internalTokens; }
+
 }

@@ -22,6 +22,8 @@ public class AFATests
 
         Automaton automaton = new Automaton(parser.GetTokens());
 
+        automaton.SetStateName();
+
     }
 
 }

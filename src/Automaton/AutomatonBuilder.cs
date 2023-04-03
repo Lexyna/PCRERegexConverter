@@ -74,10 +74,14 @@ public class AutomatonBuilder
         Console.WriteLine("la: ");
         Console.WriteLine(lookahead.symbol);
 
-        Automaton automaton = new Automaton();
+        Automaton automaton = new Automaton(lookahead.GetToken());
 
-
-
+        for (int i = 0; i < auto.acceptingStates.Count; i++)
+            for (int j = 0; j < automaton.startStates.Count; j++)
+            {
+                Transition t = new Transition(auto.acceptingStates[i], "", auto.startStates[j], true);
+                t.Apply();
+            }
     }
 
     public void AppendTerminal()

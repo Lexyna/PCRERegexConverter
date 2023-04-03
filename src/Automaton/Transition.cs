@@ -9,12 +9,15 @@ public class Transition
 
     public bool delete { get; private set; }
 
-    public Transition(State inS, string symbol, State outS)
+    private bool universal;
+
+    public Transition(State inS, string symbol, State outS, bool universal = false)
     {
         this.inS = inS;
         this.outS = outS;
         this.symbol = symbol;
         this.uuid = System.Guid.NewGuid().ToString();
+        this.universal = universal;
     }
 
     public State GetOutState() { return outS; }
