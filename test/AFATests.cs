@@ -23,7 +23,7 @@ public class AFATests
         Automaton automaton = new Automaton(parser.GetTokens());
 
         automaton.SetStateName();
-
+        Assert.True(automaton.IsAFA());
     }
 
     [Fact]
@@ -46,8 +46,8 @@ public class AFATests
         Automaton automaton = new Automaton(parser.GetTokens());
         automaton.SetStateName();
 
-
         EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
+        Assert.True(automaton.IsAFA());
 
     }
 
