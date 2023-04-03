@@ -52,11 +52,11 @@ public class Entry
             Console.WriteLine($"Regex Accepts \"{args[i]}\":{a.AcceptsWord(args[i])}\n");
         }
 
-        //AutomatonVisualizer visualizer = new AutomatonVisualizer(a.startStates[0]);
+        AutomatonVisualizer visualizer = new AutomatonVisualizer(a.startStates[0]);
 
-        AFAToNFAConverter conv = new AFAToNFAConverter(a);
+        //AFAToNFAConverter conv = new AFAToNFAConverter(a);
 
-        AutomatonVisualizer visualizer = new AutomatonVisualizer(conv.nfa.startStates[0]);
+        //AutomatonVisualizer visualizer = new AutomatonVisualizer(conv.nfa.startStates[0]);
 
     }
 
