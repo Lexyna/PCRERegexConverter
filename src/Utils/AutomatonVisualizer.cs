@@ -44,7 +44,12 @@ public class AutomatonVisualizer
         foreach (Transition t in state.GetOutgoingTransitions())
         {
             string label = String.IsNullOrEmpty(t.symbol) ? "ε" : t.symbol;
-            graph.AddEdge(state.id, label, t.GetOutState().id);
+
+            if (t.universal)
+                graph.AddEdge(state.id, label, t.GetOutState().id).Attr.Color = Microsoft.Msagl.Drawing.Color.Cyan;
+            else
+                graph.AddEdge(state.id, label, t.GetOutState().id);
+
 
             if (!t.GetOutState().visited)
                 CreateEdges(graph, t.GetOutState(), false);
