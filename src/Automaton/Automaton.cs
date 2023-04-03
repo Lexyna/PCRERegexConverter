@@ -97,38 +97,34 @@ public class Automaton
 
     }
 
-    public bool IsAFA()
+    public int GetUniversalTransitionCount()
     {
-        bool isAfa = false;
+
+        int count = 0;
 
         Dictionary<string, bool> visited = new Dictionary<string, bool>();
 
         for (int i = 0; i < startStates.Count; i++)
         {
-            isAfa = FindUniversalTransition(startStates[i], visited);
-            if (isAfa) break;
+            FindUniversalTransition(startStates[i], visited, ref count);
         }
 
-        return isAfa;
+        return count;
     }
 
-    private bool FindUniversalTransition(State state, Dictionary<string, bool> visited)
+    private void FindUniversalTransition(State state, Dictionary<string, bool> visited, ref int count)
     {
         visited.Add(state.id, true);
 
         for (int i = 0; i < state.GetOutgoingTransitions().Count; i++)
-            if (state.GetOutgoingTransitions()[i].universal) return true;
-
-        bool isAfa = false;
+            if (state.GetOutgoingTransitions()[i].universal) count++;
 
         for (int i = 0; i < state.GetOutgoingTransitions().Count; i++)
         {
-            if (isAfa) break;
             if (!visited.ContainsKey(state.GetOutgoingTransitions()[i].GetOutState().id))
-                isAfa = FindUniversalTransition(state.GetOutgoingTransitions()[i].GetOutState(), visited);
+                FindUniversalTransition(state.GetOutgoingTransitions()[i].GetOutState(), visited, ref count);
         }
 
-        return isAfa;
     }
 
     private void TraverseStates(State state, ref int index, ref Dictionary<string, bool> visited)
