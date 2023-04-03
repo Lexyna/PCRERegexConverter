@@ -93,23 +93,28 @@ public class Automaton
 
         int index = 0;
 
-        startStates.ForEach(s => TraverseStates(s, ref index, ref visited));
+        startStates.ForEach(s => TraverseStates(s, ref index, ref visited, false));
 
     }
 
-    private void TraverseStates(State state, ref int index, ref Dictionary<string, bool> visited)
+    private void TraverseStates(State state, ref int index, ref Dictionary<string, bool> visited, bool lookahead)
     {
 
         if (visited.ContainsKey(state.id)) return;
 
-        state.id = "q" + index;
+        if (!lookahead)
+            state.id = "q" + index;
+        else
+            state.id = "L" + index;
         index++;
 
         visited.Add(state.id, true);
 
         for (int i = 0; i < state.GetOutgoingTransitions().Count; i++)
-            TraverseStates(state.GetOutgoingTransitions()[i].GetOutState(), ref index, ref visited);
-
+            if (!state.GetOutgoingTransitions()[i].universal)
+                TraverseStates(state.GetOutgoingTransitions()[i].GetOutState(), ref index, ref visited, lookahead);
+            else
+                TraverseStates(state.GetOutgoingTransitions()[i].GetOutState(), ref index, ref visited, true);
     }
 
     public int GetUniversalTransitionCount()
