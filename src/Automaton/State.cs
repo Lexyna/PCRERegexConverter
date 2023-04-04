@@ -4,7 +4,7 @@ public class State
 {
 
     public string id { set; get; }
-
+    public string uuid { get; private set; }
     public bool visited = false;
     public bool Simplified = false;
     public bool isEndState { private set; get; }
@@ -16,6 +16,7 @@ public class State
 
     public State(string id, bool isEndState = false)
     {
+        this.uuid = System.Guid.NewGuid().ToString();
         this.id = id;
         this.isEndState = isEndState;
     }

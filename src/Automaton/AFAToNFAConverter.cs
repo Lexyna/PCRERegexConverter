@@ -45,7 +45,7 @@ public class AFAToNFAConverter
 
     private void MapExistentialTransition(State nfaState, State afaState, List<Transition> universalTransitions, List<State> universalEntryState)
     {
-        //Create the nfa with only existential transitions, ignoring any lookaheads
+        //Create the 'sterilized' nfa with only existential transitions, ignoring any lookaheads and without any endStates
         for (int i = 0; i < afaState.GetOutgoingTransitions().Count; i++)
         {
             Transition t = afaState.GetOutgoingTransitions()[i];
@@ -77,13 +77,18 @@ public class AFAToNFAConverter
         //List of all pseudoEndStates, a pseudo endState is a endState, that cannot be applied, since it contains at least one unresolved lookahead
         Dictionary<string, bool> pseudoEndStates = new Dictionary<string, bool>();
 
-        List<State> possible = new List<State>() { universalTransition.GetInState() };
+        //If a new state contains a lookahead, it's not directly resolved,
+        //this list stores all these states to resolve later
+        List<State> newLookaheadStates = new List<State>();
+        //References the universal Transition for the newLookaheadState[i] at refTransition[i] for later implementation
+        List<Transition> refTransitions = new List<Transition>();
 
-        CreatePowerSet(entry, possible, visited, pseudoEndStates, universalTransition.uuid);
+
+        CreatePowerSet(entry, universalTransition.GetInState(), visited, pseudoEndStates, universalTransition.uuid);
     }
 
-    //
-    private void CreatePowerSet(State curr, List<State> possible, Dictionary<string, bool> visited, Dictionary<string, bool> pseudoEndStates, string? uuid = null)
+    //uuid id used to determine if there are multiple universal Transition on one node
+    private void CreatePowerSet(State curr, State currLookahead, Dictionary<string, bool> visited, Dictionary<string, bool> pseudoEndStates, string? uuid = null)
     {
 
 

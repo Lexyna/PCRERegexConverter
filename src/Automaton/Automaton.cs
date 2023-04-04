@@ -6,6 +6,9 @@ public class Automaton
     //Reference to the token sequence defining this Automaton
     private List<Token> tokenStream;
 
+    //stores all States for this NFA, for easy access
+    public Dictionary<string, State> states = new Dictionary<string, State>();
+
     public Automaton()
     {
         startStates = new List<State>();
@@ -26,6 +29,7 @@ public class Automaton
 
         AutomatonBuilder builder = new AutomatonBuilder(tokenStream, this);
         builder.build();
+        FindAllStates();
     }
 
     public void AddStartingState(State state)
@@ -145,6 +149,23 @@ public class Automaton
                 FindUniversalTransition(state.GetOutgoingTransitions()[i].GetOutState(), visited, ref count);
         }
 
+    }
+
+    public void FindAllStates()
+    {
+        for (int i = 0; i < startStates.Count; i++)
+        {
+            FindAllStatesFromState(startStates[i]);
+        }
+    }
+
+    private void FindAllStatesFromState(State state)
+    {
+        if (states.ContainsKey(state.uuid)) return;
+
+        states.Add(state.uuid, state);
+
+        state.GetOutgoingTransitions().ForEach(t => FindAllStatesFromState(t.GetOutState()));
     }
 
     public bool AcceptsWord(string word)
