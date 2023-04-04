@@ -6,7 +6,7 @@ public class AFAToNFAConverterTests
     [Fact]
     public void ConvertToNFA()
     {
-        string regex = "a(?=a)";
+        string regex = "(?=a)a";
 
         Lexer lexer = new Lexer(regex);
         lexer.Tokenize();
@@ -21,6 +21,8 @@ public class AFAToNFAConverterTests
 
         Automaton automaton = new Automaton(parser.GetTokens());
         automaton.SetStateName();
+
+        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
 
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 

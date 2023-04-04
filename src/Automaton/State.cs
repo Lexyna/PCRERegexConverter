@@ -9,7 +9,8 @@ public class State
     public bool Simplified = false;
     public bool isEndState { private set; get; }
 
-    //bool isUniversalTransition = false; //For AFA, moves to all connected states
+    //Used for AFA to NFA conversion
+    public Queue<string> marker = new Queue<string>();
 
     List<Transition> ingoing = new List<Transition>();
     List<Transition> outgoing = new List<Transition>();
