@@ -36,13 +36,21 @@ public class AFAToNFAConverter
 
         State nfa_start_state = new State("q0");
         nfa.AddStartingState(nfa_start_state);
-        MapExistentialTransition(nfa_start_state, afa.startStates[0], standaloneNFA, marked);
+
+        HashSet<string> visited = new HashSet<string>();
+
+        MapExistentialTransition(nfa_start_state, afa.startStates[0], standaloneNFA, marked, visited);
 
         InitPowerSet(standaloneNFA, marked);
     }
 
-    private void MapExistentialTransition(State nfaState, State afaState, Dictionary<string, State> standaloneNFA, Queue<State> marked)
+    private void MapExistentialTransition(State nfaState, State afaState, Dictionary<string, State> standaloneNFA, Queue<State> marked, HashSet<string> visited)
     {
+        if (visited.Contains(afaState.uuid))
+            return;
+
+        visited.Add(afaState.uuid);
+
         //Create the 'sterilized' nfa with only existential transitions, ignoring any lookaheads and without any endStates
         for (int i = 0; i < afaState.GetOutgoingTransitions().Count; i++)
         {
@@ -67,7 +75,7 @@ public class AFAToNFAConverter
                 pseudoEndStates.Add(new_nfa_state.uuid);
 
             //For each state we added, we repeat the process
-            MapExistentialTransition(new_nfa_state, t.GetOutState(), standaloneNFA, marked);
+            MapExistentialTransition(new_nfa_state, t.GetOutState(), standaloneNFA, marked, visited);
         }
     }
 
