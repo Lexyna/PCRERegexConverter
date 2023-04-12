@@ -45,18 +45,18 @@ public class Entry
         Automaton a = new Automaton(stream);
         a.SetStateName();
 
-        EpsilonEliminator.RemoveEpsilonFromState(a.startStates[0]);
+        //EpsilonEliminator.RemoveEpsilonFromState(a.startStates[0]);
 
         for (int i = 1; i < args.Length; i++)
         {
             Console.WriteLine($"Regex Accepts \"{args[i]}\":{a.AcceptsWord(args[i])}\n");
         }
 
-        //AutomatonVisualizer visualizer = new AutomatonVisualizer(a.startStates[0]);
+        AutomatonVisualizer visualizer = new AutomatonVisualizer(a.startStates[0]);
 
-        AFAToNFAConverter conv = new AFAToNFAConverter(a);
+        //AFAToNFAConverter conv = new AFAToNFAConverter(a);
 
-        AutomatonVisualizer visualizer = new AutomatonVisualizer(conv.nfa.startStates[0]);
+        //AutomatonVisualizer visualizer = new AutomatonVisualizer(conv.nfa.startStates[0]);
 
     }
 

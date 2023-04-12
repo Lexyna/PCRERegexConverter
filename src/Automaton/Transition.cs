@@ -11,6 +11,9 @@ public class Transition
 
     public bool universal { get; private set; }
 
+    //list of all states belonging to the universal transition
+    public Dictionary<string, Transition> universalLink = new Dictionary<string, Transition>();
+
     public Transition(State inS, string symbol, State outS, bool universal = false)
     {
         this.inS = inS;

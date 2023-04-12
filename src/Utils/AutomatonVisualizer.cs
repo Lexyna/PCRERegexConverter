@@ -46,7 +46,13 @@ public class AutomatonVisualizer
             string label = String.IsNullOrEmpty(t.symbol) ? "ε" : t.symbol;
 
             if (t.universal)
+            {
+                label += "/{";
+                foreach (KeyValuePair<string, Transition> link in t.universalLink)
+                    label += link.Value.symbol;
+                label += "}";
                 graph.AddEdge(state.id, label, t.GetOutState().id).Attr.Color = Microsoft.Msagl.Drawing.Color.Cyan;
+            }
             else
                 graph.AddEdge(state.id, label, t.GetOutState().id);
 

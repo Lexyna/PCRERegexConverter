@@ -10,6 +10,9 @@ public class AutomatonBuilder
 
     bool isSubAutomaton = false;
 
+    //to easily keep track of all universal transitions and populate their universalLink list  
+    private List<Transition> universalTransitions = new List<Transition>();
+
     public AutomatonBuilder(List<Token> stream, Automaton auto)
     {
         this.stream = stream;
@@ -25,6 +28,7 @@ public class AutomatonBuilder
 
     private void ApplySubEndStates()
     {
+        ResolveUniversalLinks();
 
         if (!isSubAutomaton) return;
 
@@ -82,6 +86,7 @@ public class AutomatonBuilder
             {
                 Transition t = new Transition(auto.acceptingStates[i], "", automaton.startStates[j], true);
                 t.Apply();
+                universalTransitions.Add(t);
             }
     }
 
@@ -228,6 +233,29 @@ public class AutomatonBuilder
             }
 
         nextAutomaton.acceptingStates.ForEach(s => auto.AddAcceptingState(s));
+    }
+
+    public void ResolveUniversalLinks()
+    {
+
+        foreach (Transition transition in universalTransitions)
+        {
+            State startState = transition.GetInState();
+
+            Dictionary<string, Transition> reachable = new Dictionary<string, Transition>();
+
+            EpsilonEliminator.FindReachableStates(startState, reachable);
+
+            foreach (KeyValuePair<string, Transition> entry in reachable)
+            {
+                Transition reachableTransition = entry.Value;
+
+                if (reachableTransition.symbol != "" && !transition.universalLink.ContainsKey(reachableTransition.uuid))
+                    transition.universalLink.Add(reachableTransition.uuid, reachableTransition);
+            }
+
+        }
+
     }
 
 }

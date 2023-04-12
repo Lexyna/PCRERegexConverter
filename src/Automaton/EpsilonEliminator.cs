@@ -81,7 +81,7 @@ public static class EpsilonEliminator
 
     }
 
-    private static void FindReachableStates(State s, Dictionary<string, Transition> reachable)
+    public static void FindReachableStates(State s, Dictionary<string, Transition> reachable)
     {
 
         for (int i = 0; i < s.GetOutgoingTransitions().Count; i++)

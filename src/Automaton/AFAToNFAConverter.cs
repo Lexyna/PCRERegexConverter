@@ -40,12 +40,12 @@ public class AFAToNFAConverter
 
         HashSet<string> visited = new HashSet<string>();
 
-        MapExistentialTransition(nfa_start_state, afa.startStates[0], standaloneNFA, marked, visited);
+        MapExistentialTransition(nfa_start_state, afa.startStates[0], standaloneNFA, marked, visited, false);
 
         InitPowerSet(standaloneNFA, marked);
     }
 
-    private void MapExistentialTransition(State nfaState, State afaState, Dictionary<string, State> standaloneNFA, Queue<State> marked, HashSet<string> visited)
+    private void MapExistentialTransition(State nfaState, State afaState, Dictionary<string, State> standaloneNFA, Queue<State> marked, HashSet<string> visited, bool pseudoMode)
     {
         if (visited.Contains(afaState.uuid))
             return;
@@ -57,8 +57,11 @@ public class AFAToNFAConverter
         {
             Transition t = afaState.GetOutgoingTransitions()[i];
 
+            bool isPseudoMode = false;
+
             if (t.universal)
             {
+                isPseudoMode = true;
                 if (!standaloneNFA.ContainsKey(t.GetOutState().uuid))
                     standaloneNFA.Add(t.GetOutState().uuid, t.GetOutState());
                 marked.Enqueue(nfaState);
@@ -72,11 +75,13 @@ public class AFAToNFAConverter
             new_nfa_transition.Apply();
 
             //If this state in the afa is an ednState, the nfa State will be a pseudoEndState
-            if (t.GetOutState().isEndState)
+            if (t.GetOutState().isEndState && (isPseudoMode || pseudoMode))
                 pseudoEndStates.Add(new_nfa_state.uuid);
+            else if (t.GetOutState().isEndState)
+                new_nfa_state.SetEndState(true);
 
             //For each state we added, we repeat the process
-            MapExistentialTransition(new_nfa_state, t.GetOutState(), standaloneNFA, marked, visited);
+            MapExistentialTransition(new_nfa_state, t.GetOutState(), standaloneNFA, marked, visited, isPseudoMode);
         }
     }
 
