@@ -11,6 +11,7 @@ public class AFAToNFAConverter
 
     //keeps track of all 'endStates' that can't be applied since another lookahead isn't resolved yet
     HashSet<string> pseudoEndStates = new HashSet<string>();
+
     public AFAToNFAConverter(Automaton afa)
     {
         this.afa = afa;
@@ -114,6 +115,9 @@ public class AFAToNFAConverter
         //for each Transition in in the current State
         for (int i = 0; i < currTransition; i++)
         {
+            bool lookaheadAccepts = false;
+
+
             //and each Transition in the lookaheadState
             for (int j = 0; j < currLookahead.GetOutgoingTransitions().Count; j++)
             {
@@ -121,8 +125,18 @@ public class AFAToNFAConverter
                 Transition curr_t = curr.GetOutgoingTransitions()[i];
                 Transition lookahead_t = currLookahead.GetOutgoingTransitions()[j];
 
-                //if the Transition symbols don#t line up, ignore
+                //if the Transition symbols don't line up, ignore
                 if (!curr_t.symbol.Equals(lookahead_t.symbol)) continue;
+
+                //if this state accepts, we can add all transitions of the base nfa without creating the power set with the afa
+                if (lookahead_t.GetInState().isEndState || lookaheadAccepts)
+                {
+                    lookaheadAccepts = true;
+                    //TODO: Implement function to add all te subgraph starting from curr
+                    //additional note; we can have to add transitions back to any state x and combo state containing base x. However, we do not(!) nee to iterate over them (should be contained in the visited map)
+                    AddAllBaseTransitions();
+                    break;
+                }
 
                 //otherwise, we can create a new State from curr + lookahead_curr via a Transition over the symbol
                 State comboState = new State(curr.id + currLookahead.id);
@@ -167,6 +181,11 @@ public class AFAToNFAConverter
                 CalculatePowerSet(comboState, curr_t.GetOutState(), lookahead_t.GetOutState(), visited, isPseudoMode, marked);
             }
         }
+
+    }
+
+    private void AddAllBaseTransitions()
+    {
 
     }
 

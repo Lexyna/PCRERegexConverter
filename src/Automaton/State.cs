@@ -9,7 +9,7 @@ public class State
     public bool Simplified = false;
     public bool isEndState { private set; get; }
 
-    //Used for AFA to NFA conversion
+    //Used for AFA to NFA conversion. A marked state means this state contains a yet unresolved Transition to a lookahead sub automaton
     public Queue<string> marker = new Queue<string>();
 
     List<Transition> ingoing = new List<Transition>();
