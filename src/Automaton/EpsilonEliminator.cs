@@ -73,6 +73,7 @@ public static class EpsilonEliminator
             {
                 Transition lookaheadTransition = new Transition(v1, "", v2.GetOutgoingTransitions()[i].GetOutState(), true);
                 lookaheadTransition.Apply();
+                lookaheadTransition.universalLink = v2.GetOutgoingTransitions()[i].universalLink;
             }
 
 

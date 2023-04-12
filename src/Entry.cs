@@ -45,7 +45,7 @@ public class Entry
         Automaton a = new Automaton(stream);
         a.SetStateName();
 
-        //EpsilonEliminator.RemoveEpsilonFromState(a.startStates[0]);
+        EpsilonEliminator.RemoveEpsilonFromState(a.startStates[0]);
 
         for (int i = 1; i < args.Length; i++)
         {
