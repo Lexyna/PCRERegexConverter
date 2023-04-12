@@ -117,7 +117,6 @@ public class AFAToNFAConverter
         {
             bool lookaheadAccepts = false;
 
-
             //and each Transition in the lookaheadState
             for (int j = 0; j < currLookahead.GetOutgoingTransitions().Count; j++)
             {
