@@ -42,7 +42,7 @@ public class AFAToNFAConverter
 
         MapExistentialTransition(nfa_start_state, afa.startStates[0], standaloneNFA, marked, visited, false);
 
-        //InitPowerSet(standaloneNFA, marked);
+        InitPowerSet(standaloneNFA, marked);
 
         nfa.SetStateName();
     }
@@ -81,6 +81,12 @@ public class AFAToNFAConverter
                 if (universalTransitions[j].universalLink.ContainsKey(transition.uuid))
                 {
                     isPseudoMode = true;
+                    //Create the standalone NFA (sub automaton) following the universal transition
+                    if (!standaloneNFA.ContainsKey(universalTransitions[j].GetOutState().uuid))
+                        standaloneNFA.Add(universalTransitions[j].GetOutState().uuid, universalTransitions[j].GetOutState());
+                    //mark this state to be processed further
+                    marked.Enqueue(sterilizedNfaState);
+                    sterilizedNfaState.marker.Enqueue(universalTransitions[j].GetOutState().uuid);
                     break;
                 }
             }

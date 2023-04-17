@@ -79,6 +79,7 @@ public static class EpsilonEliminator
             }
         }
 
+        //Update lookahead transitions
         for (int i = 0; i < v2.GetOutgoingTransitions().Count; i++)
             if (v2.GetOutgoingTransitions()[i].universal)
             {

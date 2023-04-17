@@ -51,6 +51,10 @@ public class AFAToNFAConverterTests
 
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
+        Assert.True(converter.nfa.AcceptsWord("a"));
+        Assert.True(converter.nfa.AcceptsWord("aa"));
+        Assert.True(converter.nfa.AcceptsWord("aaaa"));
+
     }
 
     [Fact]
