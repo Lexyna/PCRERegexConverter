@@ -62,7 +62,7 @@ public static class EpsilonEliminator
                 {
                     Transition universalTransition = link.Value;
 
-                    //remove original
+                    //remove original transition
                     universalTransition.universalLink.Remove(transition.uuid);
 
                     universalTransition.universalLink.Add(newTransition.uuid, newTransition);
