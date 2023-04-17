@@ -251,7 +251,11 @@ public class AutomatonBuilder
                 Transition reachableTransition = entry.Value;
 
                 if (reachableTransition.symbol != "" && !transition.universalLink.ContainsKey(reachableTransition.uuid))
+                {
                     transition.universalLink.Add(reachableTransition.uuid, reachableTransition);
+                    if (!reachableTransition.universalLink.ContainsKey(transition.uuid))
+                        reachableTransition.universalLink.Add(transition.uuid, transition);
+                }
             }
 
         }

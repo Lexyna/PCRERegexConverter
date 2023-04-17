@@ -42,18 +42,69 @@ public class AFAToNFAConverter
 
         MapExistentialTransition(nfa_start_state, afa.startStates[0], standaloneNFA, marked, visited, false);
 
-        InitPowerSet(standaloneNFA, marked);
+        //InitPowerSet(standaloneNFA, marked);
+
+        nfa.SetStateName();
     }
 
-    private void MapExistentialTransition(State nfaState, State afaState, Dictionary<string, State> standaloneNFA, Queue<State> marked, HashSet<string> visited, bool pseudoMode)
+    private void MapExistentialTransition(State sterilizedNfaState, State baseAfaState, Dictionary<string, State> standaloneNFA, Queue<State> marked, HashSet<string> visited, bool pseudoMode)
     {
-        if (visited.Contains(afaState.uuid))
+        if (visited.Contains(baseAfaState.uuid))
             return;
 
-        visited.Add(afaState.uuid);
+        visited.Add(baseAfaState.uuid);
+
+        //Get all universal Transitions
+        List<Transition> universalTransitions = new List<Transition>();
+
+        baseAfaState.GetOutgoingTransitions().ForEach((Transition transition) =>
+        {
+            if (transition.universal)
+                universalTransitions.Add(transition);
+        });
+
+        //Iterate over all transitions in the base State
+        for (int i = 0; i < baseAfaState.GetOutgoingTransitions().Count; i++)
+        {
+
+            Transition transition = baseAfaState.GetOutgoingTransitions()[i];
+
+            //we ignore all universal transitions for now
+            if (transition.universal)
+                continue;
+
+            bool isPseudoMode = false;
+
+            //Otherwise, if this transition is is contained link set of a universal transition in the baseAfaState, activate pseudoMode
+            for (int j = 0; j < universalTransitions.Count; j++)
+            {
+                if (universalTransitions[j].universalLink.ContainsKey(transition.uuid))
+                {
+                    isPseudoMode = true;
+                    break;
+                }
+            }
+
+            //if we're already in pseudo mode, we continue pseudo mode
+            if (pseudoMode)
+                isPseudoMode = true;
+
+            //Create a new nfaState
+            State newNfaState = new State("n" + baseAfaState.id, false);
+            Transition newNfaTransition = new Transition(sterilizedNfaState, transition.symbol, newNfaState);
+            newNfaTransition.Apply();
+
+            //If this state in the afa is an endState, the nfa State will be a pseudoEndState
+            if (transition.GetOutState().isEndState && (isPseudoMode || pseudoMode))
+                pseudoEndStates.Add(newNfaState.uuid);
+            else if (transition.GetOutState().isEndState)
+                newNfaState.SetEndState(true);
+
+            MapExistentialTransition(newNfaState, transition.GetOutState(), standaloneNFA, marked, visited, isPseudoMode);
+        }
 
         //Create the 'sterilized' nfa with only existential transitions, ignoring any lookaheads and without any endStates
-        for (int i = 0; i < afaState.GetOutgoingTransitions().Count; i++)
+        /*for (int i = 0; i < afaState.GetOutgoingTransitions().Count; i++)
         {
             Transition t = afaState.GetOutgoingTransitions()[i];
 
@@ -82,7 +133,7 @@ public class AFAToNFAConverter
 
             //For each state we added, we repeat the process
             MapExistentialTransition(new_nfa_state, t.GetOutState(), standaloneNFA, marked, visited, isPseudoMode);
-        }
+        }*/
     }
 
 

@@ -50,19 +50,30 @@ public static class EpsilonEliminator
 
         foreach (KeyValuePair<string, Transition> entry in reachable)
         {
-            Transition t = entry.Value;
+            Transition transition = entry.Value;
 
-            if (t.symbol != "")
+            if (transition.symbol != "")
             {
-
-                Transition newTransition = new Transition(v1, t.symbol, t.GetOutState());
+                Transition newTransition = new Transition(v1, transition.symbol, transition.GetOutState());
                 newTransition.Apply();
+
+                //Update the link list of each universal transition with the new transition
+                foreach (KeyValuePair<string, Transition> link in transition.universalLink)
+                {
+                    Transition universalTransition = link.Value;
+
+                    //remove original
+                    universalTransition.universalLink.Remove(transition.uuid);
+
+                    universalTransition.universalLink.Add(newTransition.uuid, newTransition);
+                    newTransition.universalLink.Add(universalTransition.uuid, universalTransition);
+                }
 
             }
             else
             {
 
-                if (t.GetOutState().isEndState)
+                if (transition.GetOutState().isEndState)
                     v1.SetEndState(true);
 
             }

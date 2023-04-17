@@ -31,6 +31,24 @@ public class Transition
         inS.AddOutgoingTransition(this);
         outS.AddIngoingTransition(this);
     }
+
+    public void Update(State? inState, State? outState)
+    {
+
+        delete = true;
+        Delete();
+
+        if (inState != null)
+            inS = inState;
+        if (outState != null)
+            outS = outState;
+
+        delete = false;
+        Apply();
+
+
+    }
+
     public void Delete()
     {
         delete = true;
