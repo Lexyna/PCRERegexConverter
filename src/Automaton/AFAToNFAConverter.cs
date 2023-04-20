@@ -75,7 +75,7 @@ public class AFAToNFAConverter
 
             bool isPseudoMode = false;
 
-            //Otherwise, if this transition is is contained link set of a universal transition in the baseAfaState, activate pseudoMode
+            //Otherwise, if this transition is contained in a link set of a universal transition in the baseAfaState, activate pseudoMode
             for (int j = 0; j < universalTransitions.Count; j++)
             {
                 if (universalTransitions[j].universalLink.ContainsKey(transition.uuid))
@@ -285,7 +285,7 @@ public class AFAToNFAConverter
             State comboState = new State("b" + startState.id + transition.GetOutState().id);
 
             bool isPseudoMode = pseudoMode ? pseudoMode : false;
-            if (transition.GetOutState().marker.Count > 1)
+            if (transition.GetInState().marker.Count > 0)
                 isPseudoMode = true;
 
             //If this is either an endState or  pseudoEnd state, the new States need to be an endState as well
