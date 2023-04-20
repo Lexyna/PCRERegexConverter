@@ -189,16 +189,6 @@ public class AFAToNFAConverter
                 //if the Transition symbols don't line up, ignore
                 if (!curr_t.symbol.Equals(lookahead_t.symbol)) continue;
 
-                //if this state accepts, we can add all transitions of the base nfa without creating the power set with the afa
-                if (lookahead_t.GetInState().isEndState || lookaheadAccepts)
-                {
-                    lookaheadAccepts = true;
-                    //TODO: Implement function to add all te subgraph starting from curr
-                    //additional note; we can have to add transitions back to any state x and combo state containing base x. However, we do not(!) nee to iterate over them (should be contained in the visited map)
-                    AddAllBaseTransitions();
-                    break;
-                }
-
                 //otherwise, we can create a new State from curr + lookahead_curr via a Transition over the symbol
                 State comboState = new State(curr.id + currLookahead.id);
 
@@ -238,15 +228,57 @@ public class AFAToNFAConverter
                     comboTransition.Apply();
                 }
 
+                //if the lookahead state accepts, we can add all transitions of the base nfa without creating the power set with the afa
+                if (lookahead_t.GetOutState().isEndState || lookaheadAccepts)
+                {
+                    lookaheadAccepts = true;
+                    //TODO: Implement function to add all te subgraph starting from curr
+                    //additional note; we can have to add transitions back to any state x and combo state containing base x. However, we do not(!) nee to iterate over them (should be contained in the visited map)
+                    HashSet<string> visitedBaseStates = new HashSet<string>();
+
+                    AddAllBaseTransitions(comboState, curr_t.GetOutState(), visitedBaseStates, false);
+                    break;
+                }
+
                 //we now need to advance to the next States
-                CalculatePowerSet(comboState, curr_t.GetOutState(), lookahead_t.GetOutState(), visited, isPseudoMode, marked);
+                if (!lookaheadAccepts)
+                    CalculatePowerSet(comboState, curr_t.GetOutState(), lookahead_t.GetOutState(), visited, isPseudoMode, marked);
             }
         }
 
     }
 
-    private void AddAllBaseTransitions()
+    private void AddAllBaseTransitions(State startState, State rest, HashSet<string> visited, bool pseudoMode)
     {
+        //Now can attach each curr state onto out startState in a similar way to MapExistentialTransition.
+        if (visited.Contains(startState.uuid))
+            return;
+        visited.Add(startState.uuid);
+
+        //Iterate over all outgoing rest Transitions
+        int transitionCount = rest.GetOutgoingTransitions().Count;
+        for (int i = 0; i < transitionCount; i++)
+        {
+            Transition transition = rest.GetOutgoingTransitions()[i];
+
+            //Create a new comboState
+            State comboState = new State("b" + startState.id + transition.GetOutState().id);
+
+            bool isPseudoMode = pseudoMode ? pseudoMode : false;
+            if (transition.GetOutState().marker.Count > 1)
+                isPseudoMode = true;
+
+            //If this is either an endState or  pseudoEnd state, the new States need to be an endState as well
+            if ((transition.GetOutState().isEndState || pseudoEndStates.Contains(transition.GetOutState().uuid)) && !isPseudoMode)
+                comboState.SetEndState(true);
+            else if (transition.GetOutState().isEndState && isPseudoMode) // if the state is still marked, we have to add it to our pseudoEndStates list
+                pseudoEndStates.Add(comboState.uuid);
+
+            Transition baseTransition = new Transition(startState, transition.symbol, comboState);
+            baseTransition.Apply();
+
+            AddAllBaseTransitions(comboState, transition.GetOutState(), visited, isPseudoMode);
+        }
 
     }
 
