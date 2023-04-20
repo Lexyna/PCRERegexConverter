@@ -42,7 +42,7 @@ public class AFAToNFAConverter
 
         MapExistentialTransition(nfa_start_state, afa.startStates[0], standaloneNFA, marked, visited, false);
 
-        //InitPowerSet(standaloneNFA, marked);
+        InitPowerSet(standaloneNFA, marked);
 
         nfa.SetStateName();
     }
@@ -85,6 +85,9 @@ public class AFAToNFAConverter
                     if (!standaloneNFA.ContainsKey(universalTransitions[j].GetOutState().uuid))
                         standaloneNFA.Add(universalTransitions[j].GetOutState().uuid, universalTransitions[j].GetOutState());
                     //mark this state to be processed further
+                    if (marked.Contains(sterilizedNfaState))
+                        break;
+
                     marked.Enqueue(sterilizedNfaState);
                     sterilizedNfaState.marker.Enqueue(universalTransitions[j].GetOutState().uuid);
                     break;
@@ -269,6 +272,14 @@ public class AFAToNFAConverter
         for (int i = 0; i < transitionCount; i++)
         {
             Transition transition = rest.GetOutgoingTransitions()[i];
+
+            //we apply all self transitions first
+            if (transition.GetInState().uuid.Equals(transition.GetOutState().uuid))
+            {
+                Transition newSelfTransition = new Transition(startState, transition.symbol, startState);
+                newSelfTransition.Apply();
+                continue;
+            }
 
             //Create a new comboState
             State comboState = new State("b" + startState.id + transition.GetOutState().id);

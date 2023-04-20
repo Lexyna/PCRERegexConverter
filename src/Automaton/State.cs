@@ -64,4 +64,13 @@ public class State
     public List<Transition> GetIngoingTransitions() { return ingoing; }
     public List<Transition> GetOutgoingTransitions() { return outgoing; }
 
+    public override bool Equals(object? obj)
+    {
+        var recommendationDTO = obj as State;
+
+        if (recommendationDTO == null)
+            return false;
+        return this.uuid == recommendationDTO.uuid;
+    }
+
 }

@@ -141,4 +141,33 @@ public class AFAToNFAConverterTests
         Assert.False(converter.nfa.AcceptsWord("ab"));
         Assert.True(converter.nfa.AcceptsWord("abc"));
     }
+
+    [Fact]
+    public void ConvertNFAWithShortLookaheadAndStar()
+    {
+
+        string regex = "(?=a)a*b";
+
+        Lexer lexer = new Lexer(regex);
+        lexer.Tokenize();
+        lexer.GetTokens().ForEach(t =>
+        {
+            if (t.tokenOP != Token.OP.Class) return;
+            ((ClassToken)t).ConvertToGroup();
+        });
+
+        ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
+        parser.Simplify();
+
+        Automaton automaton = new Automaton(parser.GetTokens());
+        automaton.SetStateName();
+
+        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
+
+        AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
+
+        Assert.False(converter.nfa.AcceptsWord("a"));
+        Assert.True(converter.nfa.AcceptsWord("ab"));
+        Assert.True(converter.nfa.AcceptsWord("aab"));
+    }
 }
