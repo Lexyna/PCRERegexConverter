@@ -42,7 +42,7 @@ public class AFAToNFAConverter
 
         MapExistentialTransition(nfa_start_state, afa.startStates[0], standaloneNFA, marked, visited, false);
 
-        InitPowerSet(standaloneNFA, marked);
+        //InitPowerSet(standaloneNFA, marked);
 
         nfa.SetStateName();
     }
@@ -91,12 +91,21 @@ public class AFAToNFAConverter
                 }
             }
 
+            //we add a new self transition and jump to the next 
+            if (transition.GetInState().uuid.Equals(transition.GetOutState().uuid))
+            {
+                Transition newSelfTransition = new Transition(sterilizedNfaState, transition.symbol, sterilizedNfaState);
+                newSelfTransition.Apply();
+                continue;
+            }
+
             //if we're already in pseudo mode, we continue pseudo mode
             if (pseudoMode)
                 isPseudoMode = true;
 
             //Create a new nfaState
             State newNfaState = new State("n" + baseAfaState.id, false);
+
             Transition newNfaTransition = new Transition(sterilizedNfaState, transition.symbol, newNfaState);
             newNfaTransition.Apply();
 
