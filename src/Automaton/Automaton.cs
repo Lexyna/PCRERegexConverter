@@ -6,6 +6,9 @@ public class Automaton
     //Reference to the token sequence defining this Automaton
     private List<Token> tokenStream;
 
+    //stores all States for this NFA, for easy access
+    public Dictionary<string, State> states = new Dictionary<string, State>();
+
     public Automaton()
     {
         startStates = new List<State>();
@@ -26,6 +29,7 @@ public class Automaton
 
         AutomatonBuilder builder = new AutomatonBuilder(tokenStream, this);
         builder.build();
+        FindAllStates();
     }
 
     public void AddStartingState(State state)
@@ -93,23 +97,75 @@ public class Automaton
 
         int index = 0;
 
-        startStates.ForEach(s => TraverseStates(s, ref index, ref visited));
+        startStates.ForEach(s => TraverseStates(s, ref index, ref visited, false));
 
     }
 
-    private void TraverseStates(State state, ref int index, ref Dictionary<string, bool> visited)
+    private void TraverseStates(State state, ref int index, ref Dictionary<string, bool> visited, bool lookahead)
     {
 
         if (visited.ContainsKey(state.id)) return;
 
-        state.id = "q" + index;
+        if (!lookahead)
+            state.id = "q" + index;
+        else
+            state.id = "L" + index;
         index++;
 
         visited.Add(state.id, true);
 
         for (int i = 0; i < state.GetOutgoingTransitions().Count; i++)
-            TraverseStates(state.GetOutgoingTransitions()[i].GetOutState(), ref index, ref visited);
+            if (!state.GetOutgoingTransitions()[i].universal)
+                TraverseStates(state.GetOutgoingTransitions()[i].GetOutState(), ref index, ref visited, lookahead);
+            else
+                TraverseStates(state.GetOutgoingTransitions()[i].GetOutState(), ref index, ref visited, true);
+    }
 
+    public int GetUniversalTransitionCount()
+    {
+
+        int count = 0;
+
+        Dictionary<string, bool> visited = new Dictionary<string, bool>();
+
+        for (int i = 0; i < startStates.Count; i++)
+        {
+            FindUniversalTransition(startStates[i], visited, ref count);
+        }
+
+        return count;
+    }
+
+    private void FindUniversalTransition(State state, Dictionary<string, bool> visited, ref int count)
+    {
+        visited.Add(state.id, true);
+
+        for (int i = 0; i < state.GetOutgoingTransitions().Count; i++)
+            if (state.GetOutgoingTransitions()[i].universal) count++;
+
+        for (int i = 0; i < state.GetOutgoingTransitions().Count; i++)
+        {
+            if (!visited.ContainsKey(state.GetOutgoingTransitions()[i].GetOutState().id))
+                FindUniversalTransition(state.GetOutgoingTransitions()[i].GetOutState(), visited, ref count);
+        }
+
+    }
+
+    public void FindAllStates()
+    {
+        for (int i = 0; i < startStates.Count; i++)
+        {
+            FindAllStatesFromState(startStates[i]);
+        }
+    }
+
+    private void FindAllStatesFromState(State state)
+    {
+        if (states.ContainsKey(state.uuid)) return;
+
+        states.Add(state.uuid, state);
+
+        state.GetOutgoingTransitions().ForEach(t => FindAllStatesFromState(t.GetOutState()));
     }
 
     public bool AcceptsWord(string word)

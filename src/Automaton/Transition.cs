@@ -9,12 +9,19 @@ public class Transition
 
     public bool delete { get; private set; }
 
-    public Transition(State inS, string symbol, State outS)
+    public bool universal { get; private set; }
+
+    //links universal and existential Transitions together
+    //lst of all linked universal/existential Transitions
+    public Dictionary<string, Transition> universalLink = new Dictionary<string, Transition>();
+
+    public Transition(State inS, string symbol, State outS, bool universal = false)
     {
         this.inS = inS;
         this.outS = outS;
         this.symbol = symbol;
         this.uuid = System.Guid.NewGuid().ToString();
+        this.universal = universal;
     }
 
     public State GetOutState() { return outS; }
@@ -25,6 +32,7 @@ public class Transition
         inS.AddOutgoingTransition(this);
         outS.AddIngoingTransition(this);
     }
+
     public void Delete()
     {
         delete = true;

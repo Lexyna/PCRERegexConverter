@@ -12,6 +12,9 @@ public class AutomatonTests
 
         automaton.AddStartingState(state);
         Assert.True(automaton.IsOptional());
+
+        automaton.FindAllStates();
+        Assert.Equal(1, automaton.states.Count);
     }
 
     [Fact]
@@ -29,6 +32,9 @@ public class AutomatonTests
         automaton.AddAcceptingState(end);
 
         Assert.True(automaton.IsOptional());
+
+        automaton.FindAllStates();
+        Assert.Equal(2, automaton.states.Count);
 
     }
 
@@ -50,6 +56,9 @@ public class AutomatonTests
         automaton.AddAcceptingState(end);
 
         Assert.True(automaton.IsOptional());
+
+        automaton.FindAllStates();
+        Assert.Equal(2, automaton.states.Count);
     }
 
     [Fact]
@@ -74,6 +83,9 @@ public class AutomatonTests
         automaton.AddAcceptingState(end);
 
         Assert.True(automaton.IsOptional());
+
+        automaton.FindAllStates();
+        Assert.Equal(3, automaton.states.Count);
     }
 
     [Fact]
@@ -85,6 +97,8 @@ public class AutomatonTests
         automaton.AddStartingState(state);
         Assert.False(automaton.IsOptional());
 
+        automaton.FindAllStates();
+        Assert.Equal(1, automaton.states.Count);
     }
 
     [Fact]
@@ -102,6 +116,8 @@ public class AutomatonTests
 
         Assert.True(automaton.IsOptional());
 
+        automaton.FindAllStates();
+        Assert.Equal(2, automaton.states.Count);
     }
 
     [Fact]
@@ -120,6 +136,8 @@ public class AutomatonTests
 
         Assert.False(automaton.IsOptional());
 
+        automaton.FindAllStates();
+        Assert.Equal(2, automaton.states.Count);
     }
 
     [Fact]
@@ -131,7 +149,7 @@ public class AutomatonTests
         State mid = new State("Mid");
         State end = new State("End");
 
-        Transition startTransition = new Transition(start, "a", end);
+        Transition startTransition = new Transition(start, "a", mid);
         startTransition.Apply();
 
         Transition endTransition = new Transition(mid, "b", end);
@@ -141,6 +159,16 @@ public class AutomatonTests
         automaton.AddAcceptingState(end);
 
         Assert.False(automaton.IsOptional());
+
+        automaton.FindAllStates();
+        Assert.Equal(3, automaton.states.Count);
+
+        Dictionary<string, State> expectedStates = new Dictionary<string, State>();
+        expectedStates.Add(start.uuid, start);
+        expectedStates.Add(mid.uuid, mid);
+        expectedStates.Add(end.uuid, end);
+
+        Assert.Equal(expectedStates, automaton.states);
 
     }
 
@@ -153,7 +181,7 @@ public class AutomatonTests
         State mid = new State("Mid");
         State end = new State("End");
 
-        Transition startTransition = new Transition(start, "a", end);
+        Transition startTransition = new Transition(start, "a", mid);
         startTransition.Apply();
 
         Transition endTransition = new Transition(mid, "b", end);
@@ -167,6 +195,8 @@ public class AutomatonTests
 
         Assert.True(automaton.IsOptional());
 
+        automaton.FindAllStates();
+        Assert.Equal(3, automaton.states.Count);
     }
 
     [Fact]
@@ -178,7 +208,7 @@ public class AutomatonTests
         State mid = new State("Mid");
         State end = new State("End");
 
-        Transition startTransition = new Transition(start, "a", end);
+        Transition startTransition = new Transition(start, "a", mid);
         startTransition.Apply();
 
         Transition endTransition = new Transition(mid, "b", end);
@@ -192,6 +222,8 @@ public class AutomatonTests
 
         Assert.False(automaton.IsOptional());
 
+        automaton.FindAllStates();
+        Assert.Equal(3, automaton.states.Count);
     }
 
 }

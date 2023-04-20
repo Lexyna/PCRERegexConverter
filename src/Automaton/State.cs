@@ -4,18 +4,20 @@ public class State
 {
 
     public string id { set; get; }
-
+    public string uuid { get; private set; }
     public bool visited = false;
     public bool Simplified = false;
     public bool isEndState { private set; get; }
 
-    //bool isUniversalTransition = false; //For AFA, moves to all connected states
+    //Used for AFA to NFA conversion. A marked state means this state contains a yet unresolved Transition to a lookahead sub automaton
+    public Queue<string> marker = new Queue<string>();
 
     List<Transition> ingoing = new List<Transition>();
     List<Transition> outgoing = new List<Transition>();
 
     public State(string id, bool isEndState = false)
     {
+        this.uuid = System.Guid.NewGuid().ToString();
         this.id = id;
         this.isEndState = isEndState;
     }
@@ -61,5 +63,14 @@ public class State
 
     public List<Transition> GetIngoingTransitions() { return ingoing; }
     public List<Transition> GetOutgoingTransitions() { return outgoing; }
+
+    public override bool Equals(object? obj)
+    {
+        var recommendationDTO = obj as State;
+
+        if (recommendationDTO == null)
+            return false;
+        return this.uuid == recommendationDTO.uuid;
+    }
 
 }

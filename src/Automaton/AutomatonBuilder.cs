@@ -10,6 +10,9 @@ public class AutomatonBuilder
 
     bool isSubAutomaton = false;
 
+    //to easily keep track of all universal transitions and populate their universalLink list  
+    private List<Transition> universalTransitions = new List<Transition>();
+
     public AutomatonBuilder(List<Token> stream, Automaton auto)
     {
         this.stream = stream;
@@ -25,6 +28,7 @@ public class AutomatonBuilder
 
     private void ApplySubEndStates()
     {
+        ResolveUniversalLinks();
 
         if (!isSubAutomaton) return;
 
@@ -41,6 +45,7 @@ public class AutomatonBuilder
             case Token.OP.Terminal: AppendTerminal(); break;
             case Token.OP.Group: AppendGroup(); break;
             case Token.OP.Alternate: CreateNewAutomaton(); break;
+            case Token.OP.Lookahead: CreateLookaheadSubAutomaton(); break;
             default: break;
         }
 
@@ -63,6 +68,26 @@ public class AutomatonBuilder
 
         this.auto = alternateAutomaton;
         isSubAutomaton = true;
+    }
+
+    public void CreateLookaheadSubAutomaton()
+    {
+
+        LookaheadToken lookahead = (LookaheadToken)stream[index];
+
+        Console.WriteLine("la: ");
+        Console.WriteLine(lookahead.symbol);
+
+        Automaton automaton = new Automaton(lookahead.GetToken());
+        // automaton.SetStateName();
+
+        for (int i = 0; i < auto.acceptingStates.Count; i++)
+            for (int j = 0; j < automaton.startStates.Count; j++)
+            {
+                Transition t = new Transition(auto.acceptingStates[i], "", automaton.startStates[j], true);
+                t.Apply();
+                universalTransitions.Add(t);
+            }
     }
 
     public void AppendTerminal()
@@ -208,6 +233,33 @@ public class AutomatonBuilder
             }
 
         nextAutomaton.acceptingStates.ForEach(s => auto.AddAcceptingState(s));
+    }
+
+    public void ResolveUniversalLinks()
+    {
+
+        foreach (Transition transition in universalTransitions)
+        {
+            State startState = transition.GetInState();
+
+            Dictionary<string, Transition> reachable = new Dictionary<string, Transition>();
+
+            EpsilonEliminator.FindReachableStates(startState, reachable);
+
+            foreach (KeyValuePair<string, Transition> entry in reachable)
+            {
+                Transition reachableTransition = entry.Value;
+
+                if (reachableTransition.symbol != "" && !transition.universalLink.ContainsKey(reachableTransition.uuid))
+                {
+                    transition.universalLink.Add(reachableTransition.uuid, reachableTransition);
+                    if (!reachableTransition.universalLink.ContainsKey(transition.uuid))
+                        reachableTransition.universalLink.Add(transition.uuid, transition);
+                }
+            }
+
+        }
+
     }
 
 }

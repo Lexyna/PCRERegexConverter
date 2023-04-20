@@ -36,7 +36,7 @@ public static class EpsilonEliminator
     private static int HasEpsilonTransition(State s)
     {
         for (int i = 0; i < s.GetOutgoingTransitions().Count; i++)
-            if (s.GetOutgoingTransitions()[i].symbol == "")
+            if (s.GetOutgoingTransitions()[i].symbol == "" && !s.GetOutgoingTransitions()[i].universal)
                 return i;
         return -1;
     }
@@ -50,35 +50,57 @@ public static class EpsilonEliminator
 
         foreach (KeyValuePair<string, Transition> entry in reachable)
         {
-            Transition t = entry.Value;
+            Transition transition = entry.Value;
 
-            if (t.symbol != "")
+            if (transition.symbol != "")
             {
-
-                Transition newTransition = new Transition(v1, t.symbol, t.GetOutState());
+                Transition newTransition = new Transition(v1, transition.symbol, transition.GetOutState());
                 newTransition.Apply();
+
+                //Update the link list of each universal transition with the new transition
+                foreach (KeyValuePair<string, Transition> link in transition.universalLink)
+                {
+                    Transition universalTransition = link.Value;
+
+                    //remove original transition
+                    universalTransition.universalLink.Remove(transition.uuid);
+
+                    universalTransition.universalLink.Add(newTransition.uuid, newTransition);
+                    newTransition.universalLink.Add(universalTransition.uuid, universalTransition);
+                }
 
             }
             else
             {
 
-                if (t.GetOutState().isEndState)
+                if (transition.GetOutState().isEndState)
                     v1.SetEndState(true);
 
             }
         }
+
+        //Update lookahead transitions
+        for (int i = 0; i < v2.GetOutgoingTransitions().Count; i++)
+            if (v2.GetOutgoingTransitions()[i].universal)
+            {
+                Transition lookaheadTransition = new Transition(v1, "", v2.GetOutgoingTransitions()[i].GetOutState(), true);
+                lookaheadTransition.Apply();
+                lookaheadTransition.universalLink = v2.GetOutgoingTransitions()[i].universalLink;
+            }
+
 
         if (v2.isEndState)
             v1.SetEndState(true);
 
     }
 
-    private static void FindReachableStates(State s, Dictionary<string, Transition> reachable)
+    public static void FindReachableStates(State s, Dictionary<string, Transition> reachable)
     {
 
         for (int i = 0; i < s.GetOutgoingTransitions().Count; i++)
         {
-            if (reachable.ContainsKey(s.GetOutgoingTransitions()[i].uuid)) continue;
+            if (reachable.ContainsKey(s.GetOutgoingTransitions()[i].uuid)
+            || s.GetOutgoingTransitions()[i].universal) continue;
 
             reachable.Add(s.GetOutgoingTransitions()[i].uuid, s.GetOutgoingTransitions()[i]);
 
