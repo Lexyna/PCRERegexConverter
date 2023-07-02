@@ -86,11 +86,11 @@ public class Lexer
                 eol = true;
                 return new EOLToken();
             case Token.OP.Lookahead:
-                return CreateLookaheadToken(c); //break;
+                return CreateLookaheadToken(); //break;
             case Token.OP.NLookahead:
-                return CreateNegativeLookaheadToken(c); //break;
+                return CreateNegativeLookaheadToken(); //break;
             case Token.OP.Lookbehind:
-                return CreateLookbehindToken(c); //break;
+                return CreateLookbehindToken(); //break;
             default:
                 eol = true;
                 return new EOLToken();
@@ -168,7 +168,7 @@ public class Lexer
             if (op == Token.OP.Lookahead)
             {
 
-
+                LookaheadToken lookahead = CreateLookaheadToken();
 
                 continue;
             }
@@ -211,7 +211,7 @@ public class Lexer
         return new RepetitionToken(repetitionString);
     }
 
-    private LookaheadToken CreateLookaheadToken(char c)
+    private LookaheadToken CreateLookaheadToken()
     {
 
         string lookaheadString = "(?=";
@@ -257,7 +257,7 @@ public class Lexer
 
     }
 
-    private NLookaheadToken CreateNegativeLookaheadToken(char c)
+    private NLookaheadToken CreateNegativeLookaheadToken()
     {
 
         string lookaheadString = "(?!";
@@ -302,7 +302,7 @@ public class Lexer
         return new NLookaheadToken(lookaheadString);
     }
 
-    private GroupToken CreateLookbehindToken(char c)
+    private GroupToken CreateLookbehindToken()
     {
 
         string lookbehindString = "(?<=";
