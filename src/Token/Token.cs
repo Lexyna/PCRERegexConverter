@@ -50,6 +50,8 @@ public abstract class Token
 
     public bool ContainsLookahead()
     {
+        if (this.tokenOP == OP.Lookahead)
+            return true;
 
         for (int i = 0; i < this.internalTokens.Count; i++)
         {

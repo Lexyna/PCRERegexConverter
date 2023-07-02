@@ -53,7 +53,7 @@ public class Entry
 
 
 
-        AutomatonVisualizer nfaVisualizer = new AutomatonVisualizer(automaton.startStates[0]);
+        // AutomatonVisualizer nfaVisualizer = new AutomatonVisualizer(automaton.startStates[0]);
 
         if (isAFA)
         {
