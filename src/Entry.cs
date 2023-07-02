@@ -30,7 +30,7 @@ public class Entry
         lexer.GetTokens().ForEach(t =>
         {
             Console.WriteLine("token: {0}: {1}", t.tokenOP, t.symbol);
-            if (t.tokenOP == Token.OP.Lookahead)
+            if (t.ContainsLookahead() && !isAFA)
                 isAFA = true;
 
             if (t.tokenOP != Token.OP.Class) return;
@@ -66,5 +66,4 @@ public class Entry
         }
 
     }
-
 }

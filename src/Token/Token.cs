@@ -48,4 +48,22 @@ public abstract class Token
         return symbol;
     }
 
+    public bool ContainsLookahead()
+    {
+
+        for (int i = 0; i < this.internalTokens.Count; i++)
+        {
+            switch (this.internalTokens[i].tokenOP)
+            {
+                case Token.OP.Lookahead: return true;
+                case Token.OP.Group:
+                    if (this.internalTokens[i].ContainsLookahead())
+                        return true;
+                    continue;
+                default: continue;
+            }
+        }
+        return false;
+    }
+
 }
