@@ -46,24 +46,38 @@ public class Entry
 
         List<Token> stream = parser.GetTokens();
 
-        Automaton a = new Automaton(stream);
-        a.SetStateName();
+        Automaton automaton = new Automaton(stream);
+        automaton.SetStateName();
 
-        EpsilonEliminator.RemoveEpsilonFromState(a.startStates[0]);
+        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
 
-        for (int i = 1; i < args.Length; i++)
-        {
-            Console.WriteLine($"Regex Accepts \"{args[i]}\":{a.AcceptsWord(args[i])}\n");
-        }
 
-        //AutomatonVisualizer visualizer = new AutomatonVisualizer(a.startStates[0]);
+
+        AutomatonVisualizer nfaVisualizer = new AutomatonVisualizer(automaton.startStates[0]);
 
         if (isAFA)
         {
-            AFAToNFAConverter conv = new AFAToNFAConverter(a);
+            AFAToNFAConverter conv = new AFAToNFAConverter(automaton);
+
+            SimulateAutomaton(args[1..args.Length], conv.nfa);
 
             AutomatonVisualizer visualizer = new AutomatonVisualizer(conv.nfa.startStates[0]);
         }
+        else
+        {
+            SimulateAutomaton(args[1..args.Length], automaton);
+        }
 
     }
+
+    private static void SimulateAutomaton(string[] args, Automaton automaton)
+    {
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            Console.WriteLine($"Regex Accepts \"{args[i]}\":{automaton.AcceptsWord(args[i])}\n");
+        }
+
+    }
+
 }
