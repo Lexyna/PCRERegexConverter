@@ -161,16 +161,19 @@ public class Lexer
                 continue;
             }
 
-            groupString += group_char;
-
             op = GetTokenOp(group_char);
 
             if (op == Token.OP.Lookahead)
             {
 
                 LookaheadToken lookahead = CreateLookaheadToken();
+                groupString += lookahead.symbol;
 
                 continue;
+            }
+            else
+            {
+                groupString += group_char;
             }
 
             if (op == Token.OP.Group && group_char.Equals('('))
