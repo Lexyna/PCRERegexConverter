@@ -25,9 +25,13 @@ public class Entry
         Lexer lexer = new Lexer(args[0]);
         lexer.Tokenize();
 
+        bool isAFA = false;
+
         lexer.GetTokens().ForEach(t =>
         {
             Console.WriteLine("token: {0}: {1}", t.tokenOP, t.symbol);
+            if (t.tokenOP == Token.OP.Lookahead)
+                isAFA = true;
 
             if (t.tokenOP != Token.OP.Class) return;
 
@@ -38,7 +42,7 @@ public class Entry
         ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
         parser.Simplify();
 
-        Console.WriteLine("s: " + parser.TokenStreamToString());
+        Console.WriteLine("simplified Regex: " + parser.TokenStreamToString());
 
         List<Token> stream = parser.GetTokens();
 
@@ -54,9 +58,12 @@ public class Entry
 
         //AutomatonVisualizer visualizer = new AutomatonVisualizer(a.startStates[0]);
 
-        AFAToNFAConverter conv = new AFAToNFAConverter(a);
+        if (isAFA)
+        {
+            AFAToNFAConverter conv = new AFAToNFAConverter(a);
 
-        AutomatonVisualizer visualizer = new AutomatonVisualizer(conv.nfa.startStates[0]);
+            AutomatonVisualizer visualizer = new AutomatonVisualizer(conv.nfa.startStates[0]);
+        }
 
     }
 
