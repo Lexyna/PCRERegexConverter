@@ -55,11 +55,11 @@ public class Entry
 
         if (isAFA)
         {
-            AFAToNFAConverter conv = new AFAToNFAConverter(automaton);
+            //AFAToNFAConverter conv = new AFAToNFAConverter(automaton);
 
-            SimulateAutomaton(args[1..args.Length], conv.nfa);
+            //SimulateAutomaton(args[1..args.Length], conv.nfa);
 
-            AutomatonVisualizer visualizer = new AutomatonVisualizer(conv.nfa.startStates[0]);
+            // AutomatonVisualizer visualizer = new AutomatonVisualizer(conv.nfa.startStates[0]);
         }
         else
         {

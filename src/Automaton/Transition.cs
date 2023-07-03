@@ -1,42 +1,6 @@
 using System;
 public class Transition
 {
-    private static List<Transition> universalTransitions = new List<Transition>();
-
-    public static void AddUniversalTransition(Transition transition)
-    {
-        universalTransitions.Add(transition);
-    }
-
-    public static void ResolveUniversalLinks()
-    {
-
-        foreach (Transition transition in universalTransitions)
-        {
-            State startState = transition.GetInState();
-
-            Dictionary<string, Transition> reachable = new Dictionary<string, Transition>();
-
-            EpsilonEliminator.FindReachableStates(startState, reachable);
-
-            foreach (KeyValuePair<string, Transition> entry in reachable)
-            {
-                Transition reachableTransition = entry.Value;
-
-                if (reachableTransition.symbol != "" && !transition.universalLink.ContainsKey(reachableTransition.uuid))
-                {
-                    transition.universalLink.Add(reachableTransition.uuid, reachableTransition);
-                    if (!reachableTransition.universalLink.ContainsKey(transition.uuid))
-                        reachableTransition.universalLink.Add(transition.uuid, transition);
-                }
-            }
-
-        }
-
-    }
-
-    // Class 
-
     public string symbol { private set; get; }
 
     public string uuid { get; private set; }

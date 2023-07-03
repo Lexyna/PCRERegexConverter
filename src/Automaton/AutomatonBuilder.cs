@@ -78,16 +78,51 @@ public class AutomatonBuilder
         Console.WriteLine(lookahead.symbol);
 
         Automaton automaton = new Automaton(lookahead.GetToken());
-        // automaton.SetStateName();
+
+        List<State> newAcceptState = new List<State>();
+
+        State inBetween = new State("inBetween");
+
+        for (int i = 0; i < auto.acceptingStates.Count; i++)
+        {
+            Transition bridge = new Transition(auto.acceptingStates[i], "", inBetween);
+            bridge.Apply();
+        }
+
+        for (int i = auto.acceptingStates.Count - 1; i >= 0; i--)
+        {
+            auto.acceptingStates[i].SetEndState(false);
+            auto.RemoveAcceptingState(i);
+        }
+
+        auto.AddAcceptingState(inBetween);
+        newAcceptState.Clear();
 
         for (int i = 0; i < auto.acceptingStates.Count; i++)
             for (int j = 0; j < automaton.startStates.Count; j++)
             {
+                auto.acceptingStates[i].SetUniversal(true);
+
                 Transition t = new Transition(auto.acceptingStates[i], "", automaton.startStates[j], true);
                 t.Apply();
-                //universalTransitions.Add(t);
-                Transition.AddUniversalTransition(t);
+
+                State nextState = new State("");
+
+                Transition mainTail = new Transition(auto.acceptingStates[i], "", nextState);
+                mainTail.Apply();
+                newAcceptState.Add(nextState);
             }
+
+
+
+        for (int i = auto.acceptingStates.Count - 1; i >= 0; i--)
+        {
+            auto.acceptingStates[i].SetEndState(false);
+            auto.RemoveAcceptingState(i);
+        }
+
+        newAcceptState.ForEach(state => auto.AddAcceptingState(state));
+        //auto.AddAcceptingState(nextState);
     }
 
     public void AppendTerminal()
@@ -234,32 +269,5 @@ public class AutomatonBuilder
 
         nextAutomaton.acceptingStates.ForEach(s => auto.AddAcceptingState(s));
     }
-
-    /*public void ResolveUniversalLinks()
-    {
-
-        foreach (Transition transition in universalTransitions)
-        {
-            State startState = transition.GetInState();
-
-            Dictionary<string, Transition> reachable = new Dictionary<string, Transition>();
-
-            EpsilonEliminator.FindReachableStates(startState, reachable);
-
-            foreach (KeyValuePair<string, Transition> entry in reachable)
-            {
-                Transition reachableTransition = entry.Value;
-
-                if (reachableTransition.symbol != "" && !transition.universalLink.ContainsKey(reachableTransition.uuid))
-                {
-                    transition.universalLink.Add(reachableTransition.uuid, reachableTransition);
-                    if (!reachableTransition.universalLink.ContainsKey(transition.uuid))
-                        reachableTransition.universalLink.Add(transition.uuid, transition);
-                }
-            }
-
-        }
-
-    }*/
 
 }

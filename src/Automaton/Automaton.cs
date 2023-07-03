@@ -29,8 +29,7 @@ public class Automaton
 
         AutomatonBuilder builder = new AutomatonBuilder(tokenStream, this);
         builder.build();
-        if (startAutomat)
-            Transition.ResolveUniversalLinks();
+
         FindAllStates();
     }
 
