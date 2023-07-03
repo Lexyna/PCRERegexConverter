@@ -16,7 +16,7 @@ public class Automaton
         tokenStream = new List<Token>();
     }
 
-    public Automaton(List<Token> tokenStream)
+    public Automaton(List<Token> tokenStream, bool startAutomat = false)
     {
         startStates = new List<State>();
         acceptingStates = new List<State>();
@@ -29,6 +29,8 @@ public class Automaton
 
         AutomatonBuilder builder = new AutomatonBuilder(tokenStream, this);
         builder.build();
+        if (startAutomat)
+            Transition.ResolveUniversalLinks();
         FindAllStates();
     }
 

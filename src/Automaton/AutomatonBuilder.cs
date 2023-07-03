@@ -11,7 +11,7 @@ public class AutomatonBuilder
     bool isSubAutomaton = false;
 
     //to easily keep track of all universal transitions and populate their universalLink list  
-    private List<Transition> universalTransitions = new List<Transition>();
+    //private List<Transition> universalTransitions = new List<Transition>();
 
     public AutomatonBuilder(List<Token> stream, Automaton auto)
     {
@@ -24,12 +24,11 @@ public class AutomatonBuilder
     {
         AppendToken();
         ApplySubEndStates();
+        //ResolveUniversalLinks();
     }
 
     private void ApplySubEndStates()
     {
-        ResolveUniversalLinks();
-
         if (!isSubAutomaton) return;
 
         auto.acceptingStates.ForEach(s => mainAutomaton.AddAcceptingState(s));
@@ -86,7 +85,8 @@ public class AutomatonBuilder
             {
                 Transition t = new Transition(auto.acceptingStates[i], "", automaton.startStates[j], true);
                 t.Apply();
-                universalTransitions.Add(t);
+                //universalTransitions.Add(t);
+                Transition.AddUniversalTransition(t);
             }
     }
 
@@ -235,7 +235,7 @@ public class AutomatonBuilder
         nextAutomaton.acceptingStates.ForEach(s => auto.AddAcceptingState(s));
     }
 
-    public void ResolveUniversalLinks()
+    /*public void ResolveUniversalLinks()
     {
 
         foreach (Transition transition in universalTransitions)
@@ -260,6 +260,6 @@ public class AutomatonBuilder
 
         }
 
-    }
+    }*/
 
 }

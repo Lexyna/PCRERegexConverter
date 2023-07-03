@@ -15,9 +15,13 @@ public static class EpsilonEliminator
 
         if (epsilonIndex == -1)
         {
-            foreach (Transition t in state.GetOutgoingTransitions())
-                if (t.GetOutState().id != state.id && !visited.ContainsKey(t.GetOutState().id))
-                    RemoveEpsilonFromState(t.GetOutState(), false);
+            //foreach (Transition t in state.GetOutgoingTransitions())
+            for (int i = state.GetOutgoingTransitions().Count - 1; i >= 0; i--)
+                if (state.GetOutgoingTransitions()[i].GetOutState().id != state.id &&
+                !visited.ContainsKey(state.GetOutgoingTransitions()[i].GetOutState().id))
+                    RemoveEpsilonFromState(state.GetOutgoingTransitions()[i].GetOutState(), false);
+            //if (t.GetOutState().id != state.id && !visited.ContainsKey(t.GetOutState().id))
+            //  RemoveEpsilonFromState(t.GetOutState(), false);
             return;
         }
 
@@ -61,14 +65,15 @@ public static class EpsilonEliminator
                 foreach (KeyValuePair<string, Transition> link in transition.universalLink)
                 {
                     Transition universalTransition = link.Value;
+                    universalTransition.OverwriteInState(v1);
 
                     //remove original transition
                     universalTransition.universalLink.Remove(transition.uuid);
+                    transition.universalLink.Remove(universalTransition.uuid);
 
                     universalTransition.universalLink.Add(newTransition.uuid, newTransition);
                     newTransition.universalLink.Add(universalTransition.uuid, universalTransition);
                 }
-
             }
             else
             {
