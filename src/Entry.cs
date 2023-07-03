@@ -49,7 +49,7 @@ public class Entry
         Automaton automaton = new Automaton(stream, true);
         automaton.SetStateName();
 
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
+        //EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
 
         AutomatonVisualizer nfaVisualizer = new AutomatonVisualizer(automaton.startStates[0]);
 
