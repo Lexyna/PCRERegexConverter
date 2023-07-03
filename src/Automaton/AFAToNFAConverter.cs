@@ -12,10 +12,13 @@ public class AFAToNFAConverter
     //keeps track of all 'endStates' that can't be applied since another lookahead isn't resolved yet
     HashSet<string> pseudoEndStates = new HashSet<string>();
 
-    //Dicitionary of combinatedStates
+    //Dictionary of combinedState
     //string - original State uuid in the afa 
     //State - new State in the nfa 
     Dictionary<string, State> bridge = new Dictionary<string, State>();
+
+    //Contains all Transition that got copied from Transitions that are linked to universal transitions
+    List<Transition> copyLinks = new List<Transition>();
 
     public AFAToNFAConverter(Automaton afa)
     {
@@ -50,6 +53,8 @@ public class AFAToNFAConverter
         bridge = new Dictionary<string, State>();
         InitPowerSet(standaloneNFA, marked);
 
+        RemoveAllLinks();
+
         nfa.SetStateName();
     }
 
@@ -80,6 +85,7 @@ public class AFAToNFAConverter
                 continue;
 
             bool isPseudoMode = false;
+            bool isLinked = false;
 
             //Otherwise, if this transition is contained in a link set of a universal transition in the baseAfaState, activate pseudoMode
             for (int j = 0; j < universalTransitions.Count; j++)
@@ -87,6 +93,7 @@ public class AFAToNFAConverter
                 if (universalTransitions[j].universalLink.ContainsKey(transition.uuid))
                 {
                     isPseudoMode = true;
+                    isLinked = true;
                     //Create the standalone NFA (sub automaton) following the universal transition
                     if (!standaloneNFA.ContainsKey(universalTransitions[j].GetOutState().uuid))
                         standaloneNFA.Add(universalTransitions[j].GetOutState().uuid, universalTransitions[j].GetOutState());
@@ -116,6 +123,10 @@ public class AFAToNFAConverter
             {
                 Transition newNfaTransition = new Transition(sterilizedNfaState, transition.symbol, bridge[transition.GetOutState().uuid]);
                 newNfaTransition.Apply();
+
+                if (isLinked)
+                    copyLinks.Add(newNfaTransition);
+
             }
             else
             {
@@ -126,6 +137,8 @@ public class AFAToNFAConverter
                 Transition newNfaTransition = new Transition(sterilizedNfaState, transition.symbol, newNfaState);
                 newNfaTransition.Apply();
 
+                if (isLinked)
+                    copyLinks.Add(newNfaTransition);
 
                 //If this state in the afa is an endState, the nfa State will be a pseudoEndState
                 if (transition.GetOutState().isEndState && (isPseudoMode || pseudoMode))
@@ -169,7 +182,6 @@ public class AFAToNFAConverter
             MapExistentialTransition(new_nfa_state, t.GetOutState(), standaloneNFA, marked, visited, isPseudoMode);
         }*/
     }
-
 
     //Handles the  initialization of for the power set creation
     private void InitPowerSet(Dictionary<string, State> standaloneNFA, Queue<State> marked)
@@ -317,7 +329,8 @@ public class AFAToNFAConverter
                 //If this is either an endState or  pseudoEnd state, the new States need to be an endState as well
                 if ((transition.GetOutState().isEndState || pseudoEndStates.Contains(transition.GetOutState().uuid)) && !isPseudoMode)
                     comboState.SetEndState(true);
-                else if (transition.GetOutState().isEndState && isPseudoMode) // if the state is still marked, we have to add it to our pseudoEndStates list
+                else if ((transition.GetOutState().isEndState || pseudoEndStates.Contains(transition.GetOutState().uuid)) &&
+                isPseudoMode) // if the state is still marked, we have to add it to our pseudoEndStates list
                     pseudoEndStates.Add(comboState.uuid);
 
                 Transition baseTransition = new Transition(startState, transition.symbol, comboState);
@@ -339,6 +352,12 @@ public class AFAToNFAConverter
                     return true;
 
         return false;
+    }
+
+    //Using the list of all universal transitions, this function will remove every link in the final nfa
+    private void RemoveAllLinks()
+    {
+        copyLinks.ForEach(transitions => transitions.Delete());
     }
 
 }

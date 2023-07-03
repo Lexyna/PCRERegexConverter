@@ -416,4 +416,37 @@ public class AFAToNFAConverterTests
         Assert.False(converter.nfa.AcceptsWord("aaee"));
 
     }
+
+    [Fact]
+    public void ConverRepeatingLookahead()
+    {
+
+        string regex = "(e((?=ab)(a*b+))*g)";
+
+        Lexer lexer = new Lexer(regex);
+        lexer.Tokenize();
+        lexer.GetTokens().ForEach(t =>
+        {
+            if (t.tokenOP != Token.OP.Class) return;
+            ((ClassToken)t).ConvertToGroup();
+        });
+
+        ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
+        parser.Simplify();
+
+        Automaton automaton = new Automaton(parser.GetTokens(), true);
+        automaton.SetStateName();
+
+        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
+
+        AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
+
+        Assert.True(converter.nfa.AcceptsWord("eg"));
+        Assert.True(converter.nfa.AcceptsWord("eabg"));
+        Assert.True(converter.nfa.AcceptsWord("eabbg"));
+        Assert.True(converter.nfa.AcceptsWord("eabbbbababg"));
+        Assert.True(converter.nfa.AcceptsWord("eababg"));
+        Assert.False(converter.nfa.AcceptsWord("eabaabbg"));
+
+    }
 }
