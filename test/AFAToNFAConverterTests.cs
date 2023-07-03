@@ -308,6 +308,84 @@ public class AFAToNFAConverterTests
     }
 
     [Fact]
+    public void ConvertAFAWithLookaheadStarGroup()
+    {
+
+        string regex = "(?=a)(a|b)*";
+
+        Lexer lexer = new Lexer(regex);
+        lexer.Tokenize();
+        lexer.GetTokens().ForEach(t =>
+        {
+            if (t.tokenOP != Token.OP.Class) return;
+            ((ClassToken)t).ConvertToGroup();
+        });
+
+        ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
+        parser.Simplify();
+
+        Automaton automaton = new Automaton(parser.GetTokens(), true);
+        automaton.SetStateName();
+
+        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
+
+        AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
+
+        Assert.True(converter.nfa.AcceptsWord("a"));
+        Assert.True(converter.nfa.AcceptsWord("aa"));
+
+        Assert.True(converter.nfa.AcceptsWord("ab"));
+        Assert.True(converter.nfa.AcceptsWord("aabb"));
+        Assert.True(converter.nfa.AcceptsWord("aabbabaa"));
+        Assert.True(converter.nfa.AcceptsWord("aabbba"));
+        Assert.False(converter.nfa.AcceptsWord("b"));
+        Assert.False(converter.nfa.AcceptsWord("bba"));
+        Assert.False(converter.nfa.AcceptsWord("babb"));
+        Assert.False(converter.nfa.AcceptsWord("baba"));
+        Assert.False(converter.nfa.AcceptsWord("bba"));
+
+    }
+
+
+    [Fact]
+    public void ConvertAFAWithStartLookaheadInGroupe()
+    {
+
+        string regex = "((?=a+))b+";
+
+        Lexer lexer = new Lexer(regex);
+        lexer.Tokenize();
+        lexer.GetTokens().ForEach(t =>
+        {
+            if (t.tokenOP != Token.OP.Class) return;
+            ((ClassToken)t).ConvertToGroup();
+        });
+
+        ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
+        parser.Simplify();
+
+        Automaton automaton = new Automaton(parser.GetTokens(), true);
+        automaton.SetStateName();
+
+        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
+
+        AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
+
+        Assert.False(converter.nfa.AcceptsWord("a"));
+        Assert.False(converter.nfa.AcceptsWord("aa"));
+
+        Assert.False(converter.nfa.AcceptsWord("ab"));
+        Assert.False(converter.nfa.AcceptsWord("aabb"));
+        Assert.False(converter.nfa.AcceptsWord("b"));
+        Assert.False(converter.nfa.AcceptsWord("bb"));
+        Assert.False(converter.nfa.AcceptsWord("bbb"));
+        Assert.False(converter.nfa.AcceptsWord("aabbb"));
+        Assert.False(converter.nfa.AcceptsWord("baba"));
+        Assert.False(converter.nfa.AcceptsWord("bba"));
+
+    }
+
+    [Fact]
     public void NonAcceptingAFAWithMultipleLookaheads()
     {
 

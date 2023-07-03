@@ -12,6 +12,11 @@ public class AFAToNFAConverter
     //keeps track of all 'endStates' that can't be applied since another lookahead isn't resolved yet
     HashSet<string> pseudoEndStates = new HashSet<string>();
 
+    //Dicitionary of combinatedStates
+    //string - original State uuid in the afa 
+    //State - new State in the nfa 
+    Dictionary<string, State> bridge = new Dictionary<string, State>();
+
     public AFAToNFAConverter(Automaton afa)
     {
         this.afa = afa;
@@ -42,6 +47,7 @@ public class AFAToNFAConverter
 
         MapExistentialTransition(nfa_start_state, afa.startStates[0], standaloneNFA, marked, visited, false);
 
+        bridge = new Dictionary<string, State>();
         InitPowerSet(standaloneNFA, marked);
 
         nfa.SetStateName();
@@ -106,19 +112,29 @@ public class AFAToNFAConverter
             if (pseudoMode)
                 isPseudoMode = true;
 
-            //Create a new nfaState
-            State newNfaState = new State("n" + baseAfaState.id, false);
+            if (bridge.ContainsKey(transition.GetOutState().uuid))
+            {
+                Transition newNfaTransition = new Transition(sterilizedNfaState, transition.symbol, bridge[transition.GetOutState().uuid]);
+                newNfaTransition.Apply();
+            }
+            else
+            {
+                //Create a new nfaState
+                State newNfaState = new State("n" + baseAfaState.id, false);
+                bridge.Add(transition.GetOutState().uuid, newNfaState);
 
-            Transition newNfaTransition = new Transition(sterilizedNfaState, transition.symbol, newNfaState);
-            newNfaTransition.Apply();
+                Transition newNfaTransition = new Transition(sterilizedNfaState, transition.symbol, newNfaState);
+                newNfaTransition.Apply();
 
-            //If this state in the afa is an endState, the nfa State will be a pseudoEndState
-            if (transition.GetOutState().isEndState && (isPseudoMode || pseudoMode))
-                pseudoEndStates.Add(newNfaState.uuid);
-            else if (transition.GetOutState().isEndState)
-                newNfaState.SetEndState(true);
 
-            MapExistentialTransition(newNfaState, transition.GetOutState(), standaloneNFA, marked, visited, isPseudoMode);
+                //If this state in the afa is an endState, the nfa State will be a pseudoEndState
+                if (transition.GetOutState().isEndState && (isPseudoMode || pseudoMode))
+                    pseudoEndStates.Add(newNfaState.uuid);
+                else if (transition.GetOutState().isEndState)
+                    newNfaState.SetEndState(true);
+
+                MapExistentialTransition(newNfaState, transition.GetOutState(), standaloneNFA, marked, visited, isPseudoMode);
+            }
         }
 
         //Create the 'sterilized' nfa with only existential transitions, ignoring any lookaheads and without any endStates
@@ -171,6 +187,7 @@ public class AFAToNFAConverter
                 string uuid = mState.marker.Dequeue();
 
                 HashSet<string> visited = new HashSet<string>();
+                bridge = new Dictionary<string, State>();
 
                 //Calculate the powerSet
                 CalculatePowerSet(null, mState, standaloneNFA[uuid], visited, false, marked);
@@ -262,7 +279,7 @@ public class AFAToNFAConverter
 
     private void AddAllBaseTransitions(State startState, State rest, HashSet<string> visited, bool pseudoMode)
     {
-        //Now can attach each curr state onto out startState in a similar way to MapExistentialTransition.
+        //Now we can attach each curr state onto out startState in a similar way to MapExistentialTransition.
         if (visited.Contains(startState.uuid))
             return;
         visited.Add(startState.uuid);
@@ -281,23 +298,33 @@ public class AFAToNFAConverter
                 continue;
             }
 
-            //Create a new comboState
-            State comboState = new State("b" + startState.id + transition.GetOutState().id);
 
-            bool isPseudoMode = pseudoMode ? pseudoMode : false;
-            if (transition.GetInState().marker.Count > 0)
-                isPseudoMode = true;
+            if (bridge.ContainsKey(transition.GetOutState().uuid))
+            {
+                Transition newNfaTransition = new Transition(startState, transition.symbol, bridge[transition.GetOutState().uuid]);
+                newNfaTransition.Apply();
+            }
+            else
+            {
+                //Create a new comboState
+                State comboState = new State("b" + startState.id + transition.GetOutState().id);
+                bridge.Add(transition.GetOutState().uuid, comboState);
 
-            //If this is either an endState or  pseudoEnd state, the new States need to be an endState as well
-            if ((transition.GetOutState().isEndState || pseudoEndStates.Contains(transition.GetOutState().uuid)) && !isPseudoMode)
-                comboState.SetEndState(true);
-            else if (transition.GetOutState().isEndState && isPseudoMode) // if the state is still marked, we have to add it to our pseudoEndStates list
-                pseudoEndStates.Add(comboState.uuid);
+                bool isPseudoMode = pseudoMode ? pseudoMode : false;
+                if (transition.GetInState().marker.Count > 0)
+                    isPseudoMode = true;
 
-            Transition baseTransition = new Transition(startState, transition.symbol, comboState);
-            baseTransition.Apply();
+                //If this is either an endState or  pseudoEnd state, the new States need to be an endState as well
+                if ((transition.GetOutState().isEndState || pseudoEndStates.Contains(transition.GetOutState().uuid)) && !isPseudoMode)
+                    comboState.SetEndState(true);
+                else if (transition.GetOutState().isEndState && isPseudoMode) // if the state is still marked, we have to add it to our pseudoEndStates list
+                    pseudoEndStates.Add(comboState.uuid);
 
-            AddAllBaseTransitions(comboState, transition.GetOutState(), visited, isPseudoMode);
+                Transition baseTransition = new Transition(startState, transition.symbol, comboState);
+                baseTransition.Apply();
+
+                AddAllBaseTransitions(comboState, transition.GetOutState(), visited, isPseudoMode);
+            }
         }
 
     }

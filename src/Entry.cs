@@ -51,15 +51,15 @@ public class Entry
 
         EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
 
-        AutomatonVisualizer nfaVisualizer = new AutomatonVisualizer(automaton.startStates[0]);
+        //AutomatonVisualizer nfaVisualizer = new AutomatonVisualizer(automaton.startStates[0]);
 
         if (isAFA)
         {
-            //AFAToNFAConverter conv = new AFAToNFAConverter(automaton);
+            AFAToNFAConverter conv = new AFAToNFAConverter(automaton);
 
             //SimulateAutomaton(args[1..args.Length], conv.nfa);
 
-            //AutomatonVisualizer visualizer = new AutomatonVisualizer(conv.nfa.startStates[0]);
+            AutomatonVisualizer visualizer = new AutomatonVisualizer(conv.nfa.startStates[0]);
         }
         else
         {
