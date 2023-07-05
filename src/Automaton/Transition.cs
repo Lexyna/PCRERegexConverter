@@ -27,6 +27,11 @@ public class Transition
     public State GetOutState() { return outS; }
     public State GetInState() { return inS; }
 
+    public void SetUniversal(bool uni)
+    {
+        this.universal = uni;
+    }
+
     public void OverwriteInState(State state)
     {
         delete = true;

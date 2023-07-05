@@ -18,7 +18,9 @@ public class AutomatonVisualizer
 
         Graph graph = new Graph("RegEx Automaton");
 
-        CreateEdges(graph, entry, true);
+        HashSet<string> visited = new HashSet<string>();
+
+        CreateEdges(graph, entry, visited);
 
         Node startNode = graph.FindNode(entry.id);
         startNode.Attr.FillColor = Microsoft.Msagl.Drawing.Color.Green;
@@ -35,10 +37,12 @@ public class AutomatonVisualizer
 
     }
 
-    private void CreateEdges(Graph graph, State state, bool start)
+    private void CreateEdges(Graph graph, State state, HashSet<string> visited)
     {
+        if (visited.Contains(state.uuid))
+            return;
+        visited.Add(state.uuid);
 
-        state.visited = true;
         graph.AddNode(state.id);
 
         foreach (Transition t in state.GetOutgoingTransitions())
@@ -47,8 +51,8 @@ public class AutomatonVisualizer
 
             graph.AddEdge(state.id, label, t.GetOutState().id);
 
-            if (!t.GetOutState().visited)
-                CreateEdges(graph, t.GetOutState(), false);
+            if (!visited.Contains(t.GetOutState().uuid))
+                CreateEdges(graph, t.GetOutState(), visited);
         }
 
         Node node = graph.FindNode(state.id);

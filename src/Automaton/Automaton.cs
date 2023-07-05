@@ -122,7 +122,7 @@ public class Automaton
                 TraverseStates(state.GetOutgoingTransitions()[i].GetOutState(), ref index, ref visited, true);
     }
 
-    public int GetUniversalTransitionCount()
+    public int GetUniversalStateCount()
     {
 
         int count = 0;
@@ -131,23 +131,23 @@ public class Automaton
 
         for (int i = 0; i < startStates.Count; i++)
         {
-            FindUniversalTransition(startStates[i], visited, ref count);
+            FindUniversalStates(startStates[i], visited, ref count);
         }
 
         return count;
     }
 
-    private void FindUniversalTransition(State state, Dictionary<string, bool> visited, ref int count)
+    private void FindUniversalStates(State state, Dictionary<string, bool> visited, ref int count)
     {
         visited.Add(state.id, true);
 
-        for (int i = 0; i < state.GetOutgoingTransitions().Count; i++)
-            if (state.GetOutgoingTransitions()[i].universal) count++;
+        if (state.isUniversal)
+            count++;
 
         for (int i = 0; i < state.GetOutgoingTransitions().Count; i++)
         {
             if (!visited.ContainsKey(state.GetOutgoingTransitions()[i].GetOutState().id))
-                FindUniversalTransition(state.GetOutgoingTransitions()[i].GetOutState(), visited, ref count);
+                FindUniversalStates(state.GetOutgoingTransitions()[i].GetOutState(), visited, ref count);
         }
 
     }

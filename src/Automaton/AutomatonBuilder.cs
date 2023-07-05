@@ -105,6 +105,7 @@ public class AutomatonBuilder
 
                 Transition t = new Transition(auto.acceptingStates[i], "", automaton.startStates[j], true);
                 t.Apply();
+                t.SetUniversal(true);
 
                 State nextState = new State("");
 
@@ -113,7 +114,11 @@ public class AutomatonBuilder
                 newAcceptState.Add(nextState);
             }
 
-
+        automaton.FindAllStates();
+        foreach (KeyValuePair<string, State> pair in automaton.states)
+        {
+            pair.Value.SetLookaheadState(true);
+        }
 
         for (int i = auto.acceptingStates.Count - 1; i >= 0; i--)
         {
