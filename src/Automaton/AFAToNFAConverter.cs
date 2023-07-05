@@ -5,359 +5,342 @@ public class AFAToNFAConverter
 
     public Automaton nfa { get; private set; }
 
-    //If the power set for a lookahead automaton is created, but the Created power set itself contain another lookahead,
-    //the endStates can not be assigned without resolving the other lookaheads. Pseudo Mode disables the setting of endStates.
-    //private bool pseudoMode = false;
+    HashSet<string> visited = new HashSet<string>();
 
-    //keeps track of all 'endStates' that can't be applied since another lookahead isn't resolved yet
-    HashSet<string> pseudoEndStates = new HashSet<string>();
+    Dictionary<string, List<State>> afa_nfa_link = new Dictionary<string, List<State>>();
 
-    //Dictionary of combinedState
-    //string - original State uuid in the afa 
-    //State - new State in the nfa 
-    Dictionary<string, State> bridge = new Dictionary<string, State>();
+    //Remembers all add State of the NFA
+    //Key ist the combined id's of the States sorted, eg. '[1]','[1,5,7]','[23,44,1,7]'
+    Dictionary<string, State> nfaStateMemory = new Dictionary<string, State>();
+    Dictionary<string, State> afaStateMemory = new Dictionary<string, State>();
 
-    //Contains all Transition that got copied from Transitions that are linked to universal transitions
-    List<Transition> copyLinks = new List<Transition>();
+    private int index = 0;
 
     public AFAToNFAConverter(Automaton afa)
     {
         this.afa = afa;
         this.nfa = new Automaton();
         Convert();
+        string s = "";
+        //this.nfa.SetStateName();
+        EpsilonEliminator.RemoveEpsilonFromState(this.nfa.startStates[0]);
     }
 
     private void Convert()
     {
+        State startNFA = new State("s");
 
-        int subStates = afa.GetUniversalTransitionCount();
+        this.nfa.AddStartingState(startNFA);
+        StepOneState(startNFA, afa.startStates[0]);
+    }
 
-        if (subStates == 0)
-        {
-            this.nfa = afa;
+    private void StepOneState(State curr, State afaState, bool allowRepetition = false, bool resolving = false)
+    {
+        if (visited.Contains(afaState.uuid) && !allowRepetition)
             return;
+
+
+        if (!allowRepetition)
+            visited.Add(afaState.uuid);
+        //AutomatonVisualizer visualizer = new AutomatonVisualizer(afa.startStates[0]);
+
+        //Apply link Transitions
+        for (int i = 0; i < afaState.GetOutgoingTransitions().Count; i++)
+        {
+            if (afa_nfa_link.ContainsKey(afaState.GetOutgoingTransitions()[i].GetOutState().id))
+                for (int j = 0; j < afa_nfa_link[afaState.GetOutgoingTransitions()[i].GetOutState().id].Count; j++)
+                {
+                    Transition linkTransition = new Transition(curr, afaState.GetOutgoingTransitions()[i].symbol, afa_nfa_link[afaState.GetOutgoingTransitions()[i].GetOutState().id][j]);
+                    linkTransition.Apply();
+                }
+
         }
 
-        //standalone NFA, extracted from subAutomaton lookahead
-        Dictionary<string, State> standaloneNFA = new Dictionary<string, State>();
-        //list of marked States, string is the uuid key for the standalone subAutomaton, State the entry for the powerSet creation 
-        Queue<State> marked = new Queue<State>();
+        if (!afa_nfa_link.ContainsKey(afaState.id))
+        {
+            afa_nfa_link.Add(afaState.id, new List<State>());
+            afa_nfa_link[afaState.id].Add(curr);
+        }
 
-        State nfa_start_state = new State("q0");
-        nfa.AddStartingState(nfa_start_state);
+        for (int i = 0; i < afaState.GetOutgoingTransitions().Count; i++)
+        {
+
+            Transition afaTransition = afaState.GetOutgoingTransitions()[i];
+
+            if (!afaTransition.GetOutState().isUniversal)
+            {
+                //if (afa_nfa_link.ContainsKey(afaTransition.GetOutState().id))
+                //  continue;
+
+                //if (resolving && afaTransition.GetOutState().isUniversal)
+                //   continue;
+
+                State newNfaState = new State(index.ToString());
+                if (afaTransition.GetOutState().isEndState)
+                    newNfaState.SetEndState(true);
+
+                AddStateToNFAMemory(newNfaState);
+                index++;
+
+                if (afaTransition.GetInState().uuid == afaTransition.GetOutState().uuid)
+                {
+                    Transition nfaSelfTransition = new Transition(curr, afaTransition.symbol, curr);
+                    nfaSelfTransition.Apply();
+                    continue;
+                }
+
+                Transition nfaTransition = new Transition(curr, afaTransition.symbol, newNfaState);
+                nfaTransition.Apply();
+                StepOneState(newNfaState, afaTransition.GetOutState());
+                continue;
+            }
+            else
+            {
+                State afaUniversalState = afaTransition.GetOutState();
+
+                //Resolve the ComboState Automaton
+                State comboState = ResolveUniversalState(afaUniversalState);
+
+                //AutomatonVisualizer visualizer = new AutomatonVisualizer(afa.startStates[0]);
+
+                //DoStep One again
+                StepOneState(curr, afaState, true);
+            }
+
+        }
+    }
+
+    private State ResolveUniversalState(State universalState)
+    {
+        if (!universalState.isUniversal || universalState.GetOutgoingTransitions().Count != 2)
+            throw new Exception("State can't be processed correctly");
+
+        //First powerState always after the same schemata
+        List<State> laLinks = new List<State>();
+        List<State> nfaLinks = new List<State>();
+
+        universalState.GetOutgoingTransitions().ForEach(transition =>
+        {
+            if (transition.universal)
+                laLinks.Add(transition.GetOutState());
+            else
+                nfaLinks.Add(transition.GetOutState());
+        });
+
+        State comboState = new State(nfaLinks, laLinks);
+        AddStateToAFAMemory(comboState);
+
+        ProcessEpsilonHullComboState(comboState);
+
+        universalState.SetUniversal(false);
+
+        //Remove all outgoing transition form the universal State
+        for (int j = universalState.GetOutgoingTransitions().Count - 1; j >= 0; j--)
+            universalState.GetOutgoingTransitions()[j].Delete();
+
+        //Add new transition to resolved nfa
+        Transition resolveBridge = new Transition(universalState, "", comboState);
+        resolveBridge.Apply();
+
+        AddStateToAFAMemory(comboState);
+
+        return comboState;
+    }
+
+    public void ProcessEpsilonHullComboState(State comboState)
+    {
+        if (!comboState.linkedState)
+            return;
 
         HashSet<string> visited = new HashSet<string>();
 
-        MapExistentialTransition(nfa_start_state, afa.startStates[0], standaloneNFA, marked, visited, false);
+        List<List<State>> epsilonHull = new List<List<State>>();
 
-        bridge = new Dictionary<string, State>();
-        InitPowerSet(standaloneNFA, marked);
-
-        RemoveAllLinks();
-
-        nfa.SetStateName();
-    }
-
-    private void MapExistentialTransition(State sterilizedNfaState, State baseAfaState, Dictionary<string, State> standaloneNFA, Queue<State> marked, HashSet<string> visited, bool pseudoMode)
-    {
-        if (visited.Contains(baseAfaState.uuid))
-            return;
-
-        visited.Add(baseAfaState.uuid);
-
-        //Get all universal Transitions
-        List<Transition> universalTransitions = new List<Transition>();
-
-        baseAfaState.GetOutgoingTransitions().ForEach((Transition transition) =>
+        comboState.laLinks.ForEach(link =>
         {
-            if (transition.universal)
-                universalTransitions.Add(transition);
+            epsilonHull.Add(GetEpsilonHull(link, visited));
         });
 
-        //Iterate over all transitions in the base State
-        for (int i = 0; i < baseAfaState.GetOutgoingTransitions().Count; i++)
+        List<List<State>> nfaEpsilonHull = new List<List<State>>();
+        visited.Clear();
+
+        comboState.nfaLinks.ForEach(link =>
         {
+            epsilonHull.Add(GetEpsilonHull(link, visited));
+        });
 
-            Transition transition = baseAfaState.GetOutgoingTransitions()[i];
+        // Create all new States based on the found states
 
-            //we ignore all universal transitions for now
-            if (transition.universal)
-                continue;
+        List<List<State>> combinableStates = Utils<State>.CrossProduct(epsilonHull);
 
-            bool isPseudoMode = false;
-            bool isLinked = false;
+        List<State> generatedStates = new List<State>();
 
-            //Otherwise, if this transition is contained in a link set of a universal transition in the baseAfaState, activate pseudoMode
-            for (int j = 0; j < universalTransitions.Count; j++)
-            {
-                if (universalTransitions[j].universalLink.ContainsKey(transition.uuid))
-                {
-                    isPseudoMode = true;
-                    isLinked = true;
-                    //Create the standalone NFA (sub automaton) following the universal transition
-                    if (!standaloneNFA.ContainsKey(universalTransitions[j].GetOutState().uuid))
-                        standaloneNFA.Add(universalTransitions[j].GetOutState().uuid, universalTransitions[j].GetOutState());
-                    //mark this state to be processed further
-                    if (marked.Contains(sterilizedNfaState))
-                        break;
-
-                    marked.Enqueue(sterilizedNfaState);
-                    sterilizedNfaState.marker.Enqueue(universalTransitions[j].GetOutState().uuid);
-                    break;
-                }
-            }
-
-            //we add a new self transition and jump to the next 
-            if (transition.GetInState().uuid.Equals(transition.GetOutState().uuid))
-            {
-                Transition newSelfTransition = new Transition(sterilizedNfaState, transition.symbol, sterilizedNfaState);
-                newSelfTransition.Apply();
-                continue;
-            }
-
-            //if we're already in pseudo mode, we continue pseudo mode
-            if (pseudoMode)
-                isPseudoMode = true;
-
-            if (bridge.ContainsKey(transition.GetOutState().uuid))
-            {
-                Transition newNfaTransition = new Transition(sterilizedNfaState, transition.symbol, bridge[transition.GetOutState().uuid]);
-                newNfaTransition.Apply();
-
-                if (isLinked)
-                    copyLinks.Add(newNfaTransition);
-
-            }
-            else
-            {
-                //Create a new nfaState
-                State newNfaState = new State("n" + baseAfaState.id, false);
-                bridge.Add(transition.GetOutState().uuid, newNfaState);
-
-                Transition newNfaTransition = new Transition(sterilizedNfaState, transition.symbol, newNfaState);
-                newNfaTransition.Apply();
-
-                if (isLinked)
-                    copyLinks.Add(newNfaTransition);
-
-                //If this state in the afa is an endState, the nfa State will be a pseudoEndState
-                if (transition.GetOutState().isEndState && (isPseudoMode || pseudoMode))
-                    pseudoEndStates.Add(newNfaState.uuid);
-                else if (transition.GetOutState().isEndState)
-                    newNfaState.SetEndState(true);
-
-                MapExistentialTransition(newNfaState, transition.GetOutState(), standaloneNFA, marked, visited, isPseudoMode);
-            }
-        }
-
-        //Create the 'sterilized' nfa with only existential transitions, ignoring any lookaheads and without any endStates
-        /*for (int i = 0; i < afaState.GetOutgoingTransitions().Count; i++)
+        //Create all the new reachable states
+        for (int i = 0; i < combinableStates.Count; i++)
         {
-            Transition t = afaState.GetOutgoingTransitions()[i];
+            List<State> statesToCombine = combinableStates[i];
 
-            bool isPseudoMode = false;
+            List<State> laStates = new List<State>();
+            List<State> nfaState = new List<State>();
 
-            if (t.universal)
+            for (int j = 0; j < statesToCombine.Count; j++)
             {
-                isPseudoMode = true;
-                if (!standaloneNFA.ContainsKey(t.GetOutState().uuid))
-                    standaloneNFA.Add(t.GetOutState().uuid, t.GetOutState());
-                marked.Enqueue(nfaState);
-                nfaState.marker.Enqueue(t.GetOutState().uuid);
-                continue;
-            }
-
-            //Add all existential transition to nfa
-            State new_nfa_state = new State("n" + afaState.id, false);
-            Transition new_nfa_transition = new Transition(nfaState, t.symbol, new_nfa_state);
-            new_nfa_transition.Apply();
-
-            //If this state in the afa is an ednState, the nfa State will be a pseudoEndState
-            if (t.GetOutState().isEndState && (isPseudoMode || pseudoMode))
-                pseudoEndStates.Add(new_nfa_state.uuid);
-            else if (t.GetOutState().isEndState)
-                new_nfa_state.SetEndState(true);
-
-            //For each state we added, we repeat the process
-            MapExistentialTransition(new_nfa_state, t.GetOutState(), standaloneNFA, marked, visited, isPseudoMode);
-        }*/
-    }
-
-    //Handles the  initialization of for the power set creation
-    private void InitPowerSet(Dictionary<string, State> standaloneNFA, Queue<State> marked)
-    {
-        //We want to create the powerSet for each marked State
-        while (marked.Count > 0)
-        {
-            //take the first markedState
-            State mState = marked.Dequeue();
-
-            //we now resolve all markers
-            while (mState.marker.Count > 0)
-            {
-                //uuid key of the standaloneNFA
-                string uuid = mState.marker.Dequeue();
-
-                HashSet<string> visited = new HashSet<string>();
-                bridge = new Dictionary<string, State>();
-
-                //Calculate the powerSet
-                CalculatePowerSet(null, mState, standaloneNFA[uuid], visited, false, marked);
-            }
-        }
-    }
-
-    //pseudoMode determines whatever a new potential endStates is an endStates or should be added to the list of pseudoEndStates
-    private void CalculatePowerSet(State? prevComboState, State curr, State currLookahead, HashSet<string> visited, bool pseudoMode, Queue<State> marked)
-    {
-        if (visited.Contains(curr.uuid)) return;
-        visited.Add(curr.uuid);
-
-        int currTransition = curr.GetOutgoingTransitions().Count;
-
-        //for each Transition in in the current State
-        for (int i = 0; i < currTransition; i++)
-        {
-            bool lookaheadAccepts = false;
-
-            //and each Transition in the lookaheadState
-            for (int j = 0; j < currLookahead.GetOutgoingTransitions().Count; j++)
-            {
-
-                Transition curr_t = curr.GetOutgoingTransitions()[i];
-                Transition lookahead_t = currLookahead.GetOutgoingTransitions()[j];
-
-                //if the Transition symbols don't line up, ignore
-                if (!curr_t.symbol.Equals(lookahead_t.symbol)) continue;
-
-                //otherwise, we can create a new State from curr + lookahead_curr via a Transition over the symbol
-                State comboState = new State(curr.id + currLookahead.id);
-
-                //if our current State is marked (count > 0), we need to mark this new State with the same Queue as our curr State, activate pseudoMode
-                //and add the new State to the marked list to resolve later
-                bool isPseudoMode = curr.marker.Count > 0 ? true : false;
-                if (isPseudoMode)
-                {
-                    comboState.marker = new Queue<string>(curr.marker);
-                    marked.Enqueue(comboState);
-                }
-
-                //if both curr_next and lookahead_curr_next are endStates, and !pseudoMode, our new State is an endState
-                if (curr_t.GetOutState().isEndState && lookahead_t.GetOutState().isEndState)
-                    if (pseudoMode)
-                        pseudoEndStates.Add(comboState.uuid);
-                    else
-                        comboState.SetEndState(true);
-
-                //the same is true if curr is a pseudoEndState
-                if (pseudoEndStates.Contains(curr_t.GetOutState().uuid) && lookahead_t.GetOutState().isEndState)
-                    if (pseudoMode)
-                        pseudoEndStates.Add(comboState.uuid);
-                    else
-                        comboState.SetEndState(true);
-
-                //Now we can create a the new Transition
-                //if prevComboState is null, we are at the beginning and need to create a direct connection to the curr State
-                if (prevComboState == null)
-                {
-                    Transition comboTransition = new Transition(curr, curr_t.symbol, comboState);
-                    comboTransition.Apply();
-                }
+                if (statesToCombine[j].lookaheadState)
+                    laStates.Add(statesToCombine[j]);
                 else
-                {
-                    Transition comboTransition = new Transition(prevComboState, curr_t.symbol, comboState);
-                    comboTransition.Apply();
-                }
-
-                //if the lookahead state accepts, we can add all transitions of the base nfa without creating the power set with the afa
-                if (lookahead_t.GetOutState().isEndState || lookaheadAccepts)
-                {
-                    lookaheadAccepts = true;
-                    //TODO: Implement function to add all te subgraph starting from curr
-                    //additional note; we can have to add transitions back to any state x and combo state containing base x. However, we do not(!) nee to iterate over them (should be contained in the visited map)
-                    HashSet<string> visitedBaseStates = new HashSet<string>();
-
-                    AddAllBaseTransitions(comboState, curr_t.GetOutState(), visitedBaseStates, false);
-                    break;
-                }
-
-                //we now need to advance to the next States
-                if (!lookaheadAccepts)
-                    CalculatePowerSet(comboState, curr_t.GetOutState(), lookahead_t.GetOutState(), visited, isPseudoMode, marked);
+                    nfaState.Add(statesToCombine[j]);
             }
-        }
 
-    }
+            State newComboState = new State(nfaState, laStates);
+            generatedStates.Add(newComboState);
 
-    private void AddAllBaseTransitions(State startState, State rest, HashSet<string> visited, bool pseudoMode)
-    {
-        //Now we can attach each curr state onto out startState in a similar way to MapExistentialTransition.
-        if (visited.Contains(startState.uuid))
-            return;
-        visited.Add(startState.uuid);
-
-        //Iterate over all outgoing rest Transitions
-        int transitionCount = rest.GetOutgoingTransitions().Count;
-        for (int i = 0; i < transitionCount; i++)
-        {
-            Transition transition = rest.GetOutgoingTransitions()[i];
-
-            //we apply all self transitions first
-            if (transition.GetInState().uuid.Equals(transition.GetOutState().uuid))
-            {
-                Transition newSelfTransition = new Transition(startState, transition.symbol, startState);
-                newSelfTransition.Apply();
+            string stateKey = GetStateKey(newComboState);
+            if (afaStateMemory.ContainsKey(stateKey))
                 continue;
-            }
-
-
-            if (bridge.ContainsKey(transition.GetOutState().uuid))
-            {
-                Transition newNfaTransition = new Transition(startState, transition.symbol, bridge[transition.GetOutState().uuid]);
-                newNfaTransition.Apply();
-            }
-            else
-            {
-                //Create a new comboState
-                State comboState = new State("b" + startState.id + transition.GetOutState().id);
-                bridge.Add(transition.GetOutState().uuid, comboState);
-
-                bool isPseudoMode = pseudoMode ? pseudoMode : false;
-                if (transition.GetInState().marker.Count > 0)
-                    isPseudoMode = true;
-
-                //If this is either an endState or  pseudoEnd state, the new States need to be an endState as well
-                if ((transition.GetOutState().isEndState || pseudoEndStates.Contains(transition.GetOutState().uuid)) && !isPseudoMode)
-                    comboState.SetEndState(true);
-                else if ((transition.GetOutState().isEndState || pseudoEndStates.Contains(transition.GetOutState().uuid)) &&
-                isPseudoMode) // if the state is still marked, we have to add it to our pseudoEndStates list
-                    pseudoEndStates.Add(comboState.uuid);
-
-                Transition baseTransition = new Transition(startState, transition.symbol, comboState);
-                baseTransition.Apply();
-
-                AddAllBaseTransitions(comboState, transition.GetOutState(), visited, isPseudoMode);
-            }
+            Transition epsilonTransition = new Transition(comboState, "", newComboState);
+            epsilonTransition.Apply();
+            afaStateMemory.Add(stateKey, newComboState);
         }
 
+        //At this point 'generatedStates' only contains States with a lookahead and tail state,
+        //States here won't contain any more universal States 
+        //Create Intersection
+        for (int i = 0; i < generatedStates.Count; i++)
+            CreateIntersection(generatedStates[i]);
     }
 
-    private bool ContainsUniversalTransition(State state, string? uuid = null)
+    private void CreateIntersection(State comboState)
     {
-        for (int i = 0; i < state.GetOutgoingTransitions().Count; i++)
-            if (uuid == null && state.GetOutgoingTransitions()[i].universal)
-                return true;
-            else if (uuid != null)
-                if (state.GetOutgoingTransitions()[i].universal && state.GetOutgoingTransitions()[i].uuid != uuid)
-                    return true;
+        if (!comboState.linkedState)
+            throw new Exception("invalid Format, State must be combined State of Lookahead and tail");
 
-        return false;
+        State nfaState = comboState.nfaLinks[0];
+
+        //we only want to process the Combo State, if have to. Is the lookahead state and endState or already gone, we can just process to add States normally
+        bool createIntersection = true;
+
+        if (comboState.laLinks.Count == 0)
+            createIntersection = false;
+        else if (comboState.laLinks[0].isEndState)
+            createIntersection = false;
+
+        //States here will append to themselves, if possible
+        if (createIntersection)
+        {
+            //Create a new State for each reachable state via transition symbols
+            State laState = comboState.laLinks[0];
+
+            for (int i = 0; i < laState.GetOutgoingTransitions().Count; i++)
+            {
+                for (int j = 0; j < nfaState.GetOutgoingTransitions().Count; j++)
+                {
+                    Transition laTransition = laState.GetOutgoingTransitions()[i];
+                    Transition tailTransition = nfaState.GetOutgoingTransitions()[j];
+
+                    if (laTransition.symbol.Equals(tailTransition.symbol))
+                    {
+
+                        List<State> laList = new List<State>();
+                        List<State> tailList = new List<State>();
+
+                        laList.Add(laTransition.GetOutState());
+                        tailList.Add(tailTransition.GetOutState());
+
+                        State newComboState = new State(tailList, laList);
+
+                        if (laTransition.GetOutState().isEndState && tailTransition.GetOutState().isEndState)
+                            newComboState.SetEndState(true);
+
+                        string key = GetStateKey(newComboState);
+                        if (afaStateMemory.ContainsKey(key))
+                        {
+                            Transition newTransitionToExistingState = new Transition(comboState, tailTransition.symbol, afaStateMemory[key]);
+                            newTransitionToExistingState.Apply();
+                        }
+
+                        Transition newComboTransition = new Transition(comboState, tailTransition.symbol, newComboState);
+                        newComboTransition.Apply();
+                        AddStateToAFAMemory(newComboState);
+                        CreateIntersection(newComboState);
+                    }
+                }
+            }
+            return;
+        }
+
+        //The Lookahead State is either a EndState or doesn't exists. In this case we can process as normal
+        Transition bridge = new Transition(comboState, "", comboState.nfaLinks[0]);
+        bridge.Apply();
+        //StepOneState(comboState, comboState.nfaLinks[0], false, true);
+
     }
 
-    //Using the list of all universal transitions, this function will remove every link in the final nfa
-    private void RemoveAllLinks()
+    private List<State> GetEpsilonHull(State state, HashSet<string> visited)
     {
-        copyLinks.ForEach(transitions => transitions.Delete());
+
+        if (visited.Contains(state.uuid))
+            return new List<State>();
+        visited.Add(state.uuid);
+
+        if (state.isUniversal)
+        {
+            State comboState = ResolveUniversalState(state);
+        }
+
+        List<State> reachable = new List<State>();
+
+        reachable.Add(state);
+
+        state.GetOutgoingTransitions().ForEach(transition =>
+        {
+            if (transition.symbol == "")
+            {
+                reachable.AddRange(GetEpsilonHull(transition.GetOutState(), visited));
+            }
+        });
+        return reachable;
+    }
+
+    private void AddStateToNFAMemory(State state)
+    {
+        string key = GetStateKey(state);
+        if (!nfaStateMemory.ContainsKey(key))
+            nfaStateMemory.Add(key, state);
+    }
+
+    private void AddStateToAFAMemory(State state)
+    {
+        string key = GetStateKey(state);
+        if (!afaStateMemory.ContainsKey(key))
+            afaStateMemory.Add(key, state);
+    }
+
+    private string GetStateKey(State state)
+    {
+        if (!state.linkedState)
+            return $"[{state.id}]";
+
+        return GetIdentifier(state.laLinks, state.nfaLinks);
+    }
+
+    public string GetIdentifier(List<State> lookaheads, List<State> nfas)
+    {
+
+        List<State> stateList = new List<State>(lookaheads);
+        stateList.AddRange(nfas);
+
+        List<State> sortedList = stateList.OrderBy(s => s.id).ToList();
+
+        string key = "";
+
+        for (int i = 0; i < sortedList.Count; i++)
+        {
+            key += sortedList[i].id;
+            if (i < sortedList.Count - 1)
+                key += ",";
+        }
+
+        return $"[{key}]";
     }
 
 }

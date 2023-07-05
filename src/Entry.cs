@@ -49,7 +49,7 @@ public class Entry
         Automaton automaton = new Automaton(stream, true);
         automaton.SetStateName();
 
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
+        //EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
 
         AutomatonVisualizer nfaVisualizer = new AutomatonVisualizer(automaton.startStates[0]);
 
@@ -57,7 +57,7 @@ public class Entry
         {
             AFAToNFAConverter conv = new AFAToNFAConverter(automaton);
 
-            SimulateAutomaton(args[1..args.Length], conv.nfa);
+            //SimulateAutomaton(args[1..args.Length], conv.nfa);
 
             AutomatonVisualizer visualizer = new AutomatonVisualizer(conv.nfa.startStates[0]);
         }

@@ -22,8 +22,6 @@ public class AFAToNFAConverterTests
         Automaton automaton = new Automaton(parser.GetTokens(), true);
         automaton.SetStateName();
 
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
-
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
     }
@@ -46,8 +44,6 @@ public class AFAToNFAConverterTests
 
         Automaton automaton = new Automaton(parser.GetTokens(), true);
         automaton.SetStateName();
-
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
 
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
@@ -78,8 +74,6 @@ public class AFAToNFAConverterTests
         Automaton automaton = new Automaton(parser.GetTokens(), true);
         automaton.SetStateName();
 
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
-
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
         Assert.True(converter.nfa.AcceptsWord("b"));
@@ -104,8 +98,6 @@ public class AFAToNFAConverterTests
 
         Automaton automaton = new Automaton(parser.GetTokens(), true);
         automaton.SetStateName();
-
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
 
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
@@ -132,8 +124,6 @@ public class AFAToNFAConverterTests
 
         Automaton automaton = new Automaton(parser.GetTokens(), true);
         automaton.SetStateName();
-
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
 
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
@@ -162,8 +152,6 @@ public class AFAToNFAConverterTests
         Automaton automaton = new Automaton(parser.GetTokens(), true);
         automaton.SetStateName();
 
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
-
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
         Assert.False(converter.nfa.AcceptsWord("a"));
@@ -191,8 +179,6 @@ public class AFAToNFAConverterTests
         Automaton automaton = new Automaton(parser.GetTokens(), true);
         automaton.SetStateName();
 
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
-
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
         Assert.False(converter.nfa.AcceptsWord("a"));
@@ -219,8 +205,6 @@ public class AFAToNFAConverterTests
 
         Automaton automaton = new Automaton(parser.GetTokens(), true);
         automaton.SetStateName();
-
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
 
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
@@ -250,8 +234,6 @@ public class AFAToNFAConverterTests
 
         Automaton automaton = new Automaton(parser.GetTokens(), true);
         automaton.SetStateName();
-
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
 
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
@@ -289,8 +271,6 @@ public class AFAToNFAConverterTests
         Automaton automaton = new Automaton(parser.GetTokens(), true);
         automaton.SetStateName();
 
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
-
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
         Assert.False(converter.nfa.AcceptsWord("a"));
@@ -326,8 +306,6 @@ public class AFAToNFAConverterTests
 
         Automaton automaton = new Automaton(parser.GetTokens(), true);
         automaton.SetStateName();
-
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
 
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
@@ -367,8 +345,6 @@ public class AFAToNFAConverterTests
         Automaton automaton = new Automaton(parser.GetTokens(), true);
         automaton.SetStateName();
 
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
-
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
         Assert.False(converter.nfa.AcceptsWord("a"));
@@ -405,8 +381,6 @@ public class AFAToNFAConverterTests
         Automaton automaton = new Automaton(parser.GetTokens(), true);
         automaton.SetStateName();
 
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
-
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
         Assert.False(converter.nfa.AcceptsWord("e"));
@@ -418,7 +392,7 @@ public class AFAToNFAConverterTests
     }
 
     [Fact]
-    public void ConverRepeatingLookahead()
+    public void ConvertRepeatingLookahead()
     {
 
         string regex = "(e((?=ab)(a*b+))*g)";
@@ -436,8 +410,6 @@ public class AFAToNFAConverterTests
 
         Automaton automaton = new Automaton(parser.GetTokens(), true);
         automaton.SetStateName();
-
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
 
         AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
