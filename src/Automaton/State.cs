@@ -8,7 +8,7 @@ public class State
     public bool Simplified = false;
     public bool isEndState { private set; get; }
 
-    public bool isUniversal = false;
+    public bool isUniversal { private set; get; }
 
     public List<State> laLinks { private set; get; }
     public List<State> nfaLinks { private set; get; }

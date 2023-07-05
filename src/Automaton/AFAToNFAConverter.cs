@@ -9,6 +9,9 @@ public class AFAToNFAConverter
 
     Dictionary<string, List<State>> afa_nfa_link = new Dictionary<string, List<State>>();
 
+    //Contains the the uuid of all universalStates that are either in processing or have been processed already
+    HashSet<string> processingStates = new HashSet<string>();
+
     //Remembers all add State of the NFA
     //Key ist the combined id's of the States sorted, eg. '[1]','[1,5,7]','[23,44,1,7]'
     Dictionary<string, State> nfaStateMemory = new Dictionary<string, State>();
@@ -114,6 +117,9 @@ public class AFAToNFAConverter
     {
         if (!universalState.isUniversal || universalState.GetOutgoingTransitions().Count != 2)
             throw new Exception("State can't be processed correctly");
+
+        if (!processingStates.Contains(universalState.uuid))
+            processingStates.Add(universalState.uuid);
 
         //First powerState always after the same schemata
         List<State> laLinks = new List<State>();
@@ -284,7 +290,14 @@ public class AFAToNFAConverter
 
         if (state.isUniversal)
         {
-            State comboState = ResolveUniversalState(state);
+            if (!processingStates.Contains(state.uuid))
+            {
+                State comboState = ResolveUniversalState(state);
+            }
+            else
+            {
+                return new List<State>();
+            }
         }
 
         List<State> reachable = new List<State>();
