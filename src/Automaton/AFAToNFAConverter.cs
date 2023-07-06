@@ -153,7 +153,7 @@ public class AFAToNFAConverter
         return comboState;
     }
 
-    public void ProcessEpsilonHullComboState(State comboState)
+    public void ProcessEpsilonHullComboState(State comboState, bool includeSelf = true)
     {
         if (!comboState.linkedState)
             return;
@@ -176,6 +176,12 @@ public class AFAToNFAConverter
         });
 
         // Create all new States based on the found states
+
+        if (!includeSelf)
+            for (int i = epsilonHull.Count - 1; i >= 0; i--)
+                for (int j = epsilonHull[i].Count - 1; j >= 0; j--)
+                    if (epsilonHull[i][j].uuid == comboState.laLinks[0].uuid)
+                        epsilonHull[i].RemoveAt(j);
 
         List<List<State>> combinableStates = Utils<State>.CrossProduct(epsilonHull);
 
@@ -222,7 +228,7 @@ public class AFAToNFAConverter
 
         State nfaState = comboState.nfaLinks[0];
 
-        //we only want to process the Combo State, if have to. Is the lookahead state and endState or already gone, we can just process to add States normally
+        //we only want to process the Combo State, if we have to. Is the lookahead state and endState or already gone, we can just process to add States normally
         bool createIntersection = true;
 
         if (comboState.laLinks.Count == 0)
@@ -235,6 +241,9 @@ public class AFAToNFAConverter
         {
             //Create a new State for each reachable state via transition symbols
             State laState = comboState.laLinks[0];
+
+            //We need to resolve the epsilon hull from laState
+            ProcessEpsilonHullComboState(comboState, false);
 
             for (int i = 0; i < laState.GetOutgoingTransitions().Count; i++)
             {
@@ -262,6 +271,7 @@ public class AFAToNFAConverter
                         {
                             Transition newTransitionToExistingState = new Transition(comboState, tailTransition.symbol, afaStateMemory[key]);
                             newTransitionToExistingState.Apply();
+                            continue;
                         }
 
                         Transition newComboTransition = new Transition(comboState, tailTransition.symbol, newComboState);
