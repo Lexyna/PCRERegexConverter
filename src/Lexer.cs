@@ -243,9 +243,21 @@ public class Lexer
                 continue;
             }
 
-            lookaheadString += lookahead_char;
-
             op = GetTokenOp(lookahead_char);
+
+            if (op == Token.OP.Lookahead)
+            {
+
+                LookaheadToken lookahead = CreateLookaheadToken();
+                lookaheadString += lookahead.symbol;
+
+                continue;
+            }
+            else
+            {
+                lookaheadString += lookahead_char;
+
+            }
 
             if (op == Token.OP.Group && lookahead_char.Equals('('))
                 innerGroups++;
