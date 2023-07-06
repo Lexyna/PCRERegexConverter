@@ -23,7 +23,7 @@ public class AFATests
         Automaton automaton = new Automaton(parser.GetTokens());
 
         automaton.SetStateName();
-        Assert.Equal(1, automaton.GetUniversalTransitionCount());
+        Assert.Equal(1, automaton.GetUniversalStateCount());
     }
 
     [Fact]
@@ -46,8 +46,8 @@ public class AFATests
         Automaton automaton = new Automaton(parser.GetTokens());
         automaton.SetStateName();
 
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
-        Assert.Equal(1, automaton.GetUniversalTransitionCount());
+        //EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
+        Assert.Equal(1, automaton.GetUniversalStateCount());
 
     }
 
@@ -71,8 +71,7 @@ public class AFATests
         Automaton automaton = new Automaton(parser.GetTokens());
         automaton.SetStateName();
 
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
-        Assert.Equal(2, automaton.GetUniversalTransitionCount());
+        Assert.Equal(2, automaton.GetUniversalStateCount());
 
     }
 
@@ -96,8 +95,7 @@ public class AFATests
         Automaton automaton = new Automaton(parser.GetTokens());
         automaton.SetStateName();
 
-        EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
-        Assert.Equal(3, automaton.GetUniversalTransitionCount());
+        Assert.Equal(3, automaton.GetUniversalStateCount());
 
     }
 
