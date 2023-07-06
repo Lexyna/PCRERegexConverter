@@ -29,19 +29,21 @@ public class State
 
     public State(List<State> nfaLinks, List<State> laLinks, bool isEndState = false)
     {
-        for (int i = laLinks.Count - 1; i >= 0; i--)
+
+        this.nfaLinks = nfaLinks;
+        this.laLinks = laLinks;
+        String id = "[";
+        this.nfaLinks.ForEach(state => id += state.id);
+        this.laLinks.ForEach(state => id += state.id);
+        this.id = id + "]";
+
+        for (int i = this.laLinks.Count - 1; i >= 0; i--)
         {
             if (laLinks[i].isEndState)
                 laLinks.RemoveAt(i);
         }
 
-        this.nfaLinks = nfaLinks;
-        this.laLinks = laLinks;
         this.uuid = System.Guid.NewGuid().ToString();
-        String id = "[";
-        this.nfaLinks.ForEach(state => id += state.id);
-        this.laLinks.ForEach(state => id += state.id);
-        this.id = id + "]";
         this.isEndState = isEndState;
         this.linkedState = true;
         this.lookaheadState = false;

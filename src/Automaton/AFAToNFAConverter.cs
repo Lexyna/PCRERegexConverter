@@ -134,6 +134,10 @@ public class AFAToNFAConverter
         });
 
         State comboState = new State(nfaLinks, laLinks);
+
+        if (comboState.laLinks[0].lookaheadState && comboState.nfaLinks[0].lookaheadState)
+            comboState.SetLookaheadState(true);
+
         AddStateToAFAMemory(comboState);
 
         ProcessEpsilonHullComboState(comboState);
@@ -204,6 +208,8 @@ public class AFAToNFAConverter
             }
 
             State newComboState = new State(nfaState, laStates);
+            if (comboState.lookaheadState)
+                newComboState.SetLookaheadState(true);
             generatedStates.Add(newComboState);
 
             string stateKey = GetStateKey(newComboState);
@@ -226,7 +232,11 @@ public class AFAToNFAConverter
         if (!comboState.linkedState)
             throw new Exception("invalid Format, State must be combined State of Lookahead and tail");
 
-        State nfaState = comboState.nfaLinks[0];
+        State nfaState;
+        if (!comboState.lookaheadState)
+            nfaState = comboState.nfaLinks[0];
+        else
+            nfaState = comboState.laLinks[0];
 
         //we only want to process the Combo State, if we have to. Is the lookahead state and endState or already gone, we can just process to add States normally
         bool createIntersection = true;
@@ -240,7 +250,13 @@ public class AFAToNFAConverter
         if (createIntersection)
         {
             //Create a new State for each reachable state via transition symbols
-            State laState = comboState.laLinks[0];
+            State laState;
+            if (!comboState.lookaheadState)
+                laState = comboState.laLinks[0];
+            else if (comboState.laLinks.Count > 1)
+                laState = comboState.laLinks[1];
+            else
+                return;
 
             //We need to resolve the epsilon hull from laState
             ProcessEpsilonHullComboState(comboState, false);
@@ -262,9 +278,25 @@ public class AFAToNFAConverter
                         tailList.Add(tailTransition.GetOutState());
 
                         State newComboState = new State(tailList, laList);
+                        if (comboState.lookaheadState)
+                            newComboState.SetLookaheadState(true);
 
                         if (laTransition.GetOutState().isEndState && tailTransition.GetOutState().isEndState)
                             newComboState.SetEndState(true);
+
+                        if (newComboState.lookaheadState && newComboState.laLinks.Count == 0)
+                        {
+                            //Apply transition to new comboState with resolved lookahead
+                            Transition lookaheadBridge = new Transition(comboState, tailTransition.symbol, newComboState);
+                            lookaheadBridge.Apply();
+
+                            //Combo state will contain the rest of the remaining lookahead
+                            Transition lookaheadTail = new Transition(newComboState, "", newComboState.nfaLinks[0]);
+                            lookaheadTail.Apply();
+
+                            AddStateToAFAMemory(newComboState);
+                            continue;
+                        }
 
                         string key = GetStateKey(newComboState);
                         if (afaStateMemory.ContainsKey(key))
