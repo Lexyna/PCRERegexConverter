@@ -24,8 +24,8 @@ public class AFAToNFAConverter
         this.afa = afa;
         this.nfa = new Automaton();
         Convert();
-        string s = "";
-        //this.nfa.SetStateName();
+
+        this.nfa.SetStateName();
         EpsilonEliminator.RemoveEpsilonFromState(this.nfa.startStates[0]);
     }
 
@@ -72,11 +72,6 @@ public class AFAToNFAConverter
 
             if (!afaTransition.GetOutState().isUniversal)
             {
-                //if (afa_nfa_link.ContainsKey(afaTransition.GetOutState().id))
-                //  continue;
-
-                //if (resolving && afaTransition.GetOutState().isUniversal)
-                //   continue;
 
                 State newNfaState = new State(index.ToString());
                 if (afaTransition.GetOutState().isEndState)
@@ -103,8 +98,6 @@ public class AFAToNFAConverter
 
                 //Resolve the ComboState Automaton
                 State comboState = ResolveUniversalState(afaUniversalState);
-
-                //AutomatonVisualizer visualizer = new AutomatonVisualizer(afa.startStates[0]);
 
                 //DoStep One again
                 StepOneState(curr, afaState, true);
@@ -316,11 +309,9 @@ public class AFAToNFAConverter
             return;
         }
 
-        //The Lookahead State is either a EndState or doesn't exists. In this case we can process as normal
+        //The Lookahead State is either a EndState or doesn't exists. In this case we can proceed as normal
         Transition bridge = new Transition(comboState, "", comboState.nfaLinks[0]);
         bridge.Apply();
-        //StepOneState(comboState, comboState.nfaLinks[0], false, true);
-
     }
 
     private List<State> GetEpsilonHull(State state, HashSet<string> visited)

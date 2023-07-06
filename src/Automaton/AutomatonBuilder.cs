@@ -10,9 +10,6 @@ public class AutomatonBuilder
 
     bool isSubAutomaton = false;
 
-    //to easily keep track of all universal transitions and populate their universalLink list  
-    //private List<Transition> universalTransitions = new List<Transition>();
-
     public AutomatonBuilder(List<Token> stream, Automaton auto)
     {
         this.stream = stream;
@@ -24,7 +21,6 @@ public class AutomatonBuilder
     {
         AppendToken();
         ApplySubEndStates();
-        //ResolveUniversalLinks();
     }
 
     private void ApplySubEndStates()
@@ -73,9 +69,6 @@ public class AutomatonBuilder
     {
 
         LookaheadToken lookahead = (LookaheadToken)stream[index];
-
-        Console.WriteLine("la: ");
-        Console.WriteLine(lookahead.symbol);
 
         Automaton automaton = new Automaton(lookahead.GetToken());
 
@@ -127,7 +120,6 @@ public class AutomatonBuilder
         }
 
         newAcceptState.ForEach(state => auto.AddAcceptingState(state));
-        //auto.AddAcceptingState(nextState);
     }
 
     public void AppendTerminal()

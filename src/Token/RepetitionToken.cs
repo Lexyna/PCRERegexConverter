@@ -11,7 +11,6 @@ public class RepetitionToken : Token
 
     public RepetitionToken(string symbol) : base(symbol, OP.Repetition)
     {
-        Console.WriteLine("Repetition: {0}", symbol);
 
         MatchCollection matches = patter.Matches(symbol);
 

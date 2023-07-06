@@ -51,7 +51,6 @@ public class Lexer
         if (isEscaped)
         {
             isEscaped = false;
-            //tokens.Add(new TerminalToken("\\" + c.ToString()));
             return new TerminalToken("\\" + c.ToString());
         }
 
@@ -61,36 +60,29 @@ public class Lexer
         {
             case Token.OP.Terminal:
                 return new TerminalToken(c.ToString());
-            //tokens.Add(new TerminalToken(c.ToString())); break;
             case Token.OP.Star:
-                //tokens.Add(new StarToken()); break;
                 return new StarToken();
             case Token.OP.Plus:
-                //tokens.Add(new PlusToken()); break;
                 return new PlusToken();
             case Token.OP.Optional:
-                //tokens.Add(new OptionalToken()); break;
                 return new OptionalToken();
             case Token.OP.Alternate:
-                //tokens.Add(new AlternateToken()); break;
                 return new AlternateToken();
             case Token.OP.Repetition:
-                //CreateRepetitionToken(c); break;
                 return CreateRepetitionToken(c);
             case Token.OP.Group:
-                return CreateGroupToken(c); //break;
+                return CreateGroupToken();
             case Token.OP.Class:
-                return CreateClassToken(c); //break;
+                return CreateClassToken();
             case Token.OP.EOL:
-                //tokens.Add(new EOLToken()); eol = true; break;
                 eol = true;
                 return new EOLToken();
             case Token.OP.Lookahead:
-                return CreateLookaheadToken(); //break;
+                return CreateLookaheadToken();
             case Token.OP.NLookahead:
-                return CreateNegativeLookaheadToken(); //break;
+                return CreateNegativeLookaheadToken();
             case Token.OP.Lookbehind:
-                return CreateLookbehindToken(); //break;
+                return CreateLookbehindToken();
             default:
                 eol = true;
                 return new EOLToken();
@@ -98,7 +90,7 @@ public class Lexer
 
     }
 
-    private ClassToken CreateClassToken(char c)
+    private ClassToken CreateClassToken()
     {
 
         string classString = "[";
@@ -134,7 +126,7 @@ public class Lexer
     }
 
 
-    private GroupToken CreateGroupToken(char c)
+    private GroupToken CreateGroupToken()
     {
 
         string groupString = "(";
@@ -187,7 +179,6 @@ public class Lexer
 
         } while ((op != Token.OP.Group && op != Token.OP.EOL) || innerGroups > 0);
 
-        //tokens.Add(new GroupToken(groupString));
         return new GroupToken(groupString);
     }
 
@@ -268,7 +259,6 @@ public class Lexer
         } while ((op != Token.OP.Group && op != Token.OP.EOL) || innerGroups > 0);
 
         return new LookaheadToken(lookaheadString);
-        //tokens.Add(new LookaheadToken(lookaheadString));
 
     }
 
@@ -313,7 +303,6 @@ public class Lexer
 
         } while ((op != Token.OP.Group && op != Token.OP.EOL) || innerGroups > 0);
 
-        //tokens.Add(new NLookaheadToken(lookaheadString));
         return new NLookaheadToken(lookaheadString);
     }
 
@@ -359,7 +348,6 @@ public class Lexer
         } while ((op != Token.OP.Group && op != Token.OP.EOL) || innerGroups > 0);
 
         //Lookbehind token, placeholder for now
-        //tokens.Add(new GroupToken(lookbehindString));
         return new GroupToken(lookbehindString);
     }
 

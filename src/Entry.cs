@@ -20,7 +20,7 @@ public class Entry
             return;
         }
 
-        Console.WriteLine("Start {0}", args[0]);
+        Console.WriteLine("Start Converting: {0}", args[0]);
 
         Lexer lexer = new Lexer(args[0]);
         lexer.Tokenize();
@@ -29,7 +29,6 @@ public class Entry
 
         lexer.GetTokens().ForEach(t =>
         {
-            Console.WriteLine("token: {0}: {1}", t.tokenOP, t.symbol);
             if (t.ContainsLookahead() && !isAFA)
                 isAFA = true;
 
@@ -49,17 +48,15 @@ public class Entry
         Automaton automaton = new Automaton(stream, true);
         automaton.SetStateName();
 
-        //EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
-
         AutomatonVisualizer nfaVisualizer = new AutomatonVisualizer(automaton.startStates[0]);
 
         if (isAFA)
         {
-            AFAToNFAConverter conv = new AFAToNFAConverter(automaton);
+            AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
 
-            //SimulateAutomaton(args[1..args.Length], conv.nfa);
+            SimulateAutomaton(args[1..args.Length], converter.nfa);
 
-            AutomatonVisualizer visualizer = new AutomatonVisualizer(conv.nfa.startStates[0]);
+            AutomatonVisualizer visualizer = new AutomatonVisualizer(converter.nfa.startStates[0]);
         }
         else
         {

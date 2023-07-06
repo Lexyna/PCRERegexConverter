@@ -15,13 +15,10 @@ public static class EpsilonEliminator
 
         if (epsilonIndex == -1)
         {
-            //foreach (Transition t in state.GetOutgoingTransitions())
             for (int i = state.GetOutgoingTransitions().Count - 1; i >= 0; i--)
                 if (state.GetOutgoingTransitions()[i].GetOutState().id != state.id &&
                 !visited.ContainsKey(state.GetOutgoingTransitions()[i].GetOutState().id))
                     RemoveEpsilonFromState(state.GetOutgoingTransitions()[i].GetOutState(), false);
-            //if (t.GetOutState().id != state.id && !visited.ContainsKey(t.GetOutState().id))
-            //  RemoveEpsilonFromState(t.GetOutState(), false);
             return;
         }
 

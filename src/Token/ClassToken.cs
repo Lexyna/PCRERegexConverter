@@ -25,7 +25,6 @@ public class ClassToken : Token
             {
                 string range = BuildRangeString(index, substring);
                 groupString += range;
-                Console.WriteLine("Range: {0}", range);
 
                 index += 3;
 
@@ -43,8 +42,6 @@ public class ClassToken : Token
         } while (index < substring.Length);
 
         groupString += ")";
-
-        Console.WriteLine("string: {0}", groupString);
 
         return new GroupToken(groupString);
     }
