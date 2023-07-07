@@ -603,4 +603,35 @@ public class AFAToNFAConverterTests
 
     }
 
+    [Fact]
+    public void ConvertNestedEpsilonLookahead()
+    {
+
+        string regex = "a(?=a(?=bc))ab(?=c)c";
+
+        Lexer lexer = new Lexer(regex);
+        lexer.Tokenize();
+        lexer.GetTokens().ForEach(t =>
+        {
+            if (t.tokenOP != Token.OP.Class) return;
+            ((ClassToken)t).ConvertToGroup();
+        });
+
+        ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
+        parser.Simplify();
+
+        Automaton automaton = new Automaton(parser.GetTokens(), true);
+        automaton.SetStateName();
+
+        AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
+
+        Assert.False(converter.nfa.AcceptsWord("abbc"));
+        Assert.False(converter.nfa.AcceptsWord("ac"));
+        Assert.False(converter.nfa.AcceptsWord("ab"));
+        Assert.False(converter.nfa.AcceptsWord("aabbc"));
+        Assert.False(converter.nfa.AcceptsWord("aabcc"));
+        Assert.True(converter.nfa.AcceptsWord("aabc"));
+
+    }
+
 }

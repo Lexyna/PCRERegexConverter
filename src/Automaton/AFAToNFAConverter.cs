@@ -249,7 +249,20 @@ public class AFAToNFAConverter
             else if (comboState.laLinks.Count > 1)
                 laState = comboState.laLinks[1];
             else
+            {
+                //Here we resolved one lookahead state successfully, meaning we only have to append the rest of the remaining lookahead to the state
+                //Apply transition to new comboState with resolved lookahead
+
+                State bridgeState = new State("bridge" + index.ToString());
+                index++;
+                Transition bridgeTransition = new Transition(comboState, "", bridgeState);
+                bridgeTransition.Apply();
+
+                Transition lookaheadBridge = new Transition(bridgeState, "", nfaState);
+                lookaheadBridge.Apply();
+
                 return;
+            }
 
             //We need to resolve the epsilon hull from laState
             ProcessEpsilonHullComboState(comboState, false);
