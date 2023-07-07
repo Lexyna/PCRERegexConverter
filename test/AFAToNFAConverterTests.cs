@@ -544,6 +544,68 @@ public class AFAToNFAConverterTests
     }
 
     [Fact]
+    public void ConvertOverlappingLookahead()
+    {
+
+        string regex = "(a(?=ba)b)+a";
+
+        Lexer lexer = new Lexer(regex);
+        lexer.Tokenize();
+        lexer.GetTokens().ForEach(t =>
+        {
+            if (t.tokenOP != Token.OP.Class) return;
+            ((ClassToken)t).ConvertToGroup();
+        });
+
+        ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
+        parser.Simplify();
+
+        Automaton automaton = new Automaton(parser.GetTokens(), true);
+        automaton.SetStateName();
+
+        AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
+
+        Assert.True(converter.nfa.AcceptsWord("aba"));
+        Assert.True(converter.nfa.AcceptsWord("ababa"));
+        Assert.True(converter.nfa.AcceptsWord("abababa"));
+        Assert.False(converter.nfa.AcceptsWord("ab"));
+        Assert.False(converter.nfa.AcceptsWord("abab"));
+        Assert.False(converter.nfa.AcceptsWord("abababb"));
+
+    }
+
+    [Fact]
+    public void ConvertOverlappingLookahead2()
+    {
+
+        string regex = "(a(?=bab)b)+ab";
+
+        Lexer lexer = new Lexer(regex);
+        lexer.Tokenize();
+        lexer.GetTokens().ForEach(t =>
+        {
+            if (t.tokenOP != Token.OP.Class) return;
+            ((ClassToken)t).ConvertToGroup();
+        });
+
+        ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
+        parser.Simplify();
+
+        Automaton automaton = new Automaton(parser.GetTokens(), true);
+        automaton.SetStateName();
+
+        AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
+
+        Assert.True(converter.nfa.AcceptsWord("abab"));
+        Assert.True(converter.nfa.AcceptsWord("ababab"));
+        Assert.True(converter.nfa.AcceptsWord("ababababab"));
+        Assert.False(converter.nfa.AcceptsWord("aba"));
+        Assert.False(converter.nfa.AcceptsWord("ab"));
+        Assert.False(converter.nfa.AcceptsWord("ababa"));
+
+    }
+
+    [Fact]
     public void ConvertNestedLookahead()
     {
 
@@ -634,4 +696,35 @@ public class AFAToNFAConverterTests
 
     }
 
+    [Fact]
+    public void ConvertNestedEpsilonLookaheadRepeating()
+    {
+
+        string regex = "a(?=a(?=bc))ab(?=c)c*";
+
+        Lexer lexer = new Lexer(regex);
+        lexer.Tokenize();
+        lexer.GetTokens().ForEach(t =>
+        {
+            if (t.tokenOP != Token.OP.Class) return;
+            ((ClassToken)t).ConvertToGroup();
+        });
+
+        ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
+        parser.Simplify();
+
+        Automaton automaton = new Automaton(parser.GetTokens(), true);
+        automaton.SetStateName();
+
+        AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
+
+        Assert.False(converter.nfa.AcceptsWord("abbc"));
+        Assert.False(converter.nfa.AcceptsWord("ac"));
+        Assert.False(converter.nfa.AcceptsWord("ab"));
+        Assert.False(converter.nfa.AcceptsWord("aabbc"));
+        Assert.True(converter.nfa.AcceptsWord("aabc"));
+        Assert.True(converter.nfa.AcceptsWord("aabcc"));
+        Assert.True(converter.nfa.AcceptsWord("aabcccc"));
+
+    }
 }

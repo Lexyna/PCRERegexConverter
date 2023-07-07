@@ -1,7 +1,7 @@
 public class AFAToNFAConverter
 {
 
-    Automaton afa;
+    public Automaton afa;
 
     public Automaton nfa { get; private set; }
 
@@ -180,6 +180,12 @@ public class AFAToNFAConverter
                     if (epsilonHull[i][j].uuid == comboState.laLinks[0].uuid)
                         epsilonHull[i].RemoveAt(j);
 
+        if (epsilonHull.Count >= 2 && epsilonHull[0].Count == 0 && epsilonHull[1].Count >= 2)
+        {
+            epsilonHull[0].Add(epsilonHull[1][0]);
+            epsilonHull[1].RemoveAt(0);
+        }
+
         List<List<State>> combinableStates = Utils<State>.CrossProduct(epsilonHull);
 
         List<State> generatedStates = new List<State>();
@@ -201,6 +207,7 @@ public class AFAToNFAConverter
             }
 
             State newComboState = new State(nfaState, laStates);
+
             if (comboState.lookaheadState)
                 newComboState.SetLookaheadState(true);
             generatedStates.Add(newComboState);

@@ -56,7 +56,8 @@ public class Entry
 
             SimulateAutomaton(args[1..args.Length], converter.nfa);
 
-            AutomatonVisualizer visualizer = new AutomatonVisualizer(converter.nfa.startStates[0]);
+            AutomatonVisualizer afaVisualizer = new AutomatonVisualizer(converter.afa.startStates[0]);
+            AutomatonVisualizer nfa_Visualizer = new AutomatonVisualizer(converter.nfa.startStates[0]);
         }
         else
         {
