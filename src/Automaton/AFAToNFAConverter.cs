@@ -259,9 +259,11 @@ public class AFAToNFAConverter
             {
                 //Here we resolved one lookahead state successfully, meaning we only have to append the rest of the remaining lookahead to the state
                 //Apply transition to new comboState with resolved lookahead
-
                 State bridgeState = new State("bridge" + index.ToString());
                 index++;
+
+                bridgeState.SetLookaheadState(true);
+
                 Transition bridgeTransition = new Transition(comboState, "", bridgeState);
                 bridgeTransition.Apply();
 

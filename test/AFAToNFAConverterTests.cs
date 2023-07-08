@@ -727,4 +727,71 @@ public class AFAToNFAConverterTests
         Assert.True(converter.nfa.AcceptsWord("aabcccc"));
 
     }
+
+    [Fact]
+    public void ConvertNestedEpsilonLookaheadRepeating2()
+    {
+
+        string regex = "a(?=a(?=bc))ab(?=c)c*d";
+
+        Lexer lexer = new Lexer(regex);
+        lexer.Tokenize();
+        lexer.GetTokens().ForEach(t =>
+        {
+            if (t.tokenOP != Token.OP.Class) return;
+            ((ClassToken)t).ConvertToGroup();
+        });
+
+        ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
+        parser.Simplify();
+
+        Automaton automaton = new Automaton(parser.GetTokens(), true);
+        automaton.SetStateName();
+
+        AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
+
+        Assert.False(converter.nfa.AcceptsWord("abbc"));
+        Assert.False(converter.nfa.AcceptsWord("ac"));
+        Assert.False(converter.nfa.AcceptsWord("ab"));
+        Assert.False(converter.nfa.AcceptsWord("aabbc"));
+        Assert.True(converter.nfa.AcceptsWord("aabcd"));
+        Assert.True(converter.nfa.AcceptsWord("aabccd"));
+        Assert.True(converter.nfa.AcceptsWord("aabccccd"));
+        Assert.True(converter.nfa.AcceptsWord("aabccccccd"));
+
+    }
+    [Fact]
+    public void ConvertNestedLookaheadWithRepeatingOverlap()
+    {
+
+        string regex = "(a(?=a(?=bc))ab(?=c)c*)+d";
+
+        Lexer lexer = new Lexer(regex);
+        lexer.Tokenize();
+        lexer.GetTokens().ForEach(t =>
+        {
+            if (t.tokenOP != Token.OP.Class) return;
+            ((ClassToken)t).ConvertToGroup();
+        });
+
+        ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
+        parser.Simplify();
+
+        Automaton automaton = new Automaton(parser.GetTokens(), true);
+        automaton.SetStateName();
+
+        AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
+
+        Assert.False(converter.nfa.AcceptsWord("aabcccc"));
+        Assert.False(converter.nfa.AcceptsWord("aabd"));
+        Assert.False(converter.nfa.AcceptsWord("aabccccaabd"));
+        Assert.False(converter.nfa.AcceptsWord("aabccaabccabccd"));
+        Assert.True(converter.nfa.AcceptsWord("aabccccd"));
+        Assert.True(converter.nfa.AcceptsWord("aabcccaabcd"));
+        Assert.True(converter.nfa.AcceptsWord("aabcd"));
+        Assert.True(converter.nfa.AcceptsWord("aabcaabcaabccd"));
+        Assert.True(converter.nfa.AcceptsWord("aabccaabcccaabcccd"));
+
+    }
+
 }
