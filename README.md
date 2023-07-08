@@ -12,16 +12,16 @@ To run the Project, navigate to the folder containing the RegExConverter.dll and
 Additionally, the following options can be enabled:
 
 - `-v`, `--verbose`: Verbose output for Lexer and SimplifyParser
-- `--show_nfa`: Shows the create nfa
+- `--show_nfa`: Shows the created nfa
 - `--show_afa`: Shows the created afa
 - `--show_verbose_nfa`: Shows the verbose nfa after afa transformation
-- `--parse_words`: List of words whih will be tested against the created nfa  
+- `--parse_words`: List of words which will be tested against the created nfa  
 
 
  Example input:
- ```
-    RegExConverter.dll -r "[abc](a|de?)|(f{3,5}g+)|r*+"
- ```
+
+`RegExConverter.dll -r "[abc](a|de?)|(f{3,5}g+)|r*+"`
+
  Example output:
  ```
 Regex: [abc](a|de?)|(f{3,5}g+)|r*+
