@@ -27,6 +27,7 @@ public class AFAToNFAConverter
 
         this.nfa.SetStateName();
         EpsilonEliminator.RemoveEpsilonFromState(this.nfa.startStates[0]);
+        this.nfa.SetStateName();
     }
 
     private void Convert()
