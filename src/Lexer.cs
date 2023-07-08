@@ -13,21 +13,29 @@ public class Lexer
 
     private Boolean eol = false;
 
-    public Lexer(string regex)
+    private bool verbose;
+
+    public Lexer(string regex, bool verbose = false)
     {
         this.regex = regex;
         index = 0;
         lastCharacter = regex.Length;
+        this.verbose = verbose;
     }
 
     public void Tokenize()
     {
+
+        if (Entry.verbose)
+            Console.WriteLine($"---------------------------------- Creating TokenStream [{regex}] ----------------------------------\n");
 
         while (index < lastCharacter)
         {
             Token token = CreateToken();
             if (token.tokenOP == Token.OP.EOL && eol)
                 break;
+            if (Entry.verbose)
+                Console.WriteLine($"Adding Token: {token.ToString()}");
             tokens.Add(token);
         }
 

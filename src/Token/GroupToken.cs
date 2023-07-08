@@ -6,6 +6,8 @@ public class GroupToken : Token
 
     public GroupToken(string symbol) : base(symbol, OP.Group)
     {
+        if (Entry.verbose)
+            Console.WriteLine($"Creating GroupToken: {symbol}");
         TokenizeGroup();
     }
 
@@ -26,10 +28,15 @@ public class GroupToken : Token
 
     private void Simplify()
     {
+        int index = 0;
+
         do
         {
+            if (Entry.verbose)
+                Console.WriteLine($"---------------------------------- Simplifying Group [{index}][{symbol}]----------------------------------\n");
             ParserSimplifier parser = new ParserSimplifier(internalTokens);
             internalTokens = parser.Simplify();
+            index++;
         } while (!isDNF());
     }
 

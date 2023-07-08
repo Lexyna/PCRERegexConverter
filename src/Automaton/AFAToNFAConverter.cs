@@ -1,7 +1,7 @@
 public class AFAToNFAConverter
 {
 
-    public Automaton afa;
+    public Automaton afa { get; private set; }
 
     public Automaton nfa { get; private set; }
 

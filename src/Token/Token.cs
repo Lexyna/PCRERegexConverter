@@ -24,12 +24,15 @@ public abstract class Token
     public string symbol { get; protected set; }
     public OP tokenOP { get; private set; }
 
+    private bool verbose;
+
     protected List<Token> internalTokens = new List<Token>();
 
-    public Token(string symbol, OP tokenOP)
+    public Token(string symbol, OP tokenOP, bool verbose = false)
     {
         this.symbol = symbol;
         this.tokenOP = tokenOP;
+        this.verbose = verbose;
     }
 
     public string PrintTokenStream()
