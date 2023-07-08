@@ -44,6 +44,17 @@ public class Transition
 
     public void Apply()
     {
+        //checked for duplicate Transition
+        string uuid_in = inS.uuid;
+        string uuid_out = outS.uuid;
+
+        for (int i = 0; i < inS.GetOutgoingTransitions().Count; i++)
+        {
+            Transition possibleDuplicate = inS.GetOutgoingTransitions()[i];
+            if (possibleDuplicate.inS.uuid == uuid_in && possibleDuplicate.outS.uuid == uuid_out && possibleDuplicate.symbol == this.symbol)
+                return;
+        }
+
         inS.AddOutgoingTransition(this);
         outS.AddIngoingTransition(this);
     }
