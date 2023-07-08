@@ -8,11 +8,12 @@
     <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AutomaticGraphLayout" Version="1.1.12"/>
-    <PackageReference Include="AutomaticGraphLayout.Drawing" Version="1.1.12"/>
-    <PackageReference Include="AutomaticGraphLayout.GraphViewerGDI" Version="1.1.12"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0-preview-20221221-03"/>
-    <PackageReference Include="xunit" Version="2.4.2"/>
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5"/>
+    <PackageReference Include="AutomaticGraphLayout" Version="1.1.12" />
+    <PackageReference Include="AutomaticGraphLayout.Drawing" Version="1.1.12" />
+    <PackageReference Include="AutomaticGraphLayout.GraphViewerGDI" Version="1.1.12" />
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0-preview-20221221-03" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" />
   </ItemGroup>
 </Project>

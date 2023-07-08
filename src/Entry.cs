@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using CommandLine;
 public class Entry
 {
 
@@ -8,72 +9,98 @@ public class Entry
     static extern bool AttachConsole(int dwProcessId);
     private const int ATTACH_PARENT_PROCESS = -1;
 
+    private static bool isAFA = false;
+
+    public static bool verbose { get; private set; }
+
     [STAThread]
     public static void Main(string[] args)
     {
 
         AttachConsole(ATTACH_PARENT_PROCESS);
 
-        if (args.Length < 1)
-        {
-            Console.WriteLine("no arguments, nothing to do.");
-            return;
-        }
+        Parser.Default.ParseArguments<Options>(args)
+                        .WithParsed<Options>(o =>
+                        {
 
-        Console.WriteLine("Start Converting: {0}", args[0]);
+                            if (o.verbose)
+                                verbose = true;
+                            else
+                                verbose = false;
 
-        Lexer lexer = new Lexer(args[0]);
+                            Console.WriteLine($"Regex: {o.regex}");
+                            ParserSimplifier simplifier = SimplifyRegex(o.regex);
+
+                            if (Entry.verbose)
+                                Console.WriteLine("---------------------------------- Simplifying final Regex ----------------------------------\n");
+
+                            simplifier.Simplify();
+
+                            Console.WriteLine("Simplified Regex: " + simplifier.TokenStreamToString());
+
+                            List<Token> stream = simplifier.GetTokens();
+
+                            Automaton automaton = new Automaton(stream, true);
+                            automaton.SetStateName();
+
+                            if (!isAFA && o.showNFA)
+                            {
+                                new AutomatonVisualizer(automaton.startStates[0]);
+                                if (o.words.Any())
+                                    SimulateAutomaton(o.words, automaton);
+                                return;
+                            }
+
+                            if (o.showAFA)
+                                new AutomatonVisualizer(automaton.startStates[0]);
+
+                            AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
+
+                            if (o.showVerboseAFA)
+                                new AutomatonVisualizer(converter.afa.startStates[0]);
+
+                            if (o.showNFA)
+                                new AutomatonVisualizer(converter.nfa.startStates[0]);
+
+                            if (o.words.Any())
+                                SimulateAutomaton(o.words, converter.nfa);
+
+                        });
+    }
+
+    private static ParserSimplifier SimplifyRegex(string regex)
+    {
+        Lexer lexer = new Lexer(regex);
         lexer.Tokenize();
 
-        bool isAFA = false;
-
         lexer.GetTokens().ForEach(t =>
-        {
-            if (t.ContainsLookahead() && !isAFA)
-                isAFA = true;
+       {
+           if (t.ContainsLookahead() && !isAFA)
+               isAFA = true;
 
-            if (t.tokenOP != Token.OP.Class) return;
+           if (t.tokenOP != Token.OP.Class) return;
 
-            ((ClassToken)t).ConvertToGroup();
+           ((ClassToken)t).ConvertToGroup();
 
-        });
+       });
 
         ParserSimplifier parser = new ParserSimplifier(lexer.GetTokens());
-        parser.Simplify();
-
-        Console.WriteLine("simplified Regex: " + parser.TokenStreamToString());
-
-        List<Token> stream = parser.GetTokens();
-
-        Automaton automaton = new Automaton(stream, true);
-        automaton.SetStateName();
-
-        AutomatonVisualizer nfaVisualizer = new AutomatonVisualizer(automaton.startStates[0]);
-
-        if (isAFA)
-        {
-            AFAToNFAConverter converter = new AFAToNFAConverter(automaton);
-
-            SimulateAutomaton(args[1..args.Length], converter.nfa);
-
-            AutomatonVisualizer afaVisualizer = new AutomatonVisualizer(converter.afa.startStates[0]);
-            AutomatonVisualizer nfa_Visualizer = new AutomatonVisualizer(converter.nfa.startStates[0]);
-        }
-        else
-        {
-            SimulateAutomaton(args[1..args.Length], automaton);
-        }
+        return parser;
 
     }
 
-    private static void SimulateAutomaton(string[] args, Automaton automaton)
+    private static void SimulateAutomaton(IEnumerable<string> words, Automaton automaton)
     {
 
-        for (int i = 0; i < args.Length; i++)
-        {
-            Console.WriteLine($"Regex Accepts \"{args[i]}\":{automaton.AcceptsWord(args[i])}\n");
-        }
+        Console.WriteLine("---------------------------------- Running words ---------------------------------- \n");
 
+        var enumerator = words.GetEnumerator();
+
+        while (enumerator.MoveNext())
+        {
+            string word = enumerator.Current;
+            Console.WriteLine($"Regex Accepts \"{word}\": {automaton.AcceptsWord(word)}\n");
+        }
     }
 
 }

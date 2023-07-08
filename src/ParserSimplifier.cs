@@ -13,15 +13,21 @@ public class ParserSimplifier
 
     public List<Token> Simplify()
     {
-        Console.WriteLine("-------------- Simplifying tokens -----------------------");
+        if (Entry.verbose)
+        {
+            Console.WriteLine("---------------------------------- Simplifying ----------------------------------\n");
 
-        Console.WriteLine("Original: " + TokenStreamToString());
-        Console.WriteLine("Stream: " + PrintTokenStream());
+            Console.WriteLine("Original: " + TokenStreamToString());
+            Console.WriteLine("Stream: " + PrintTokenStream());
+        }
 
         this.tokens = Groupification();
 
-        Console.WriteLine("Simplified: " + TokenStreamToString());
-        Console.WriteLine("Stream: " + PrintTokenStream());
+        if (Entry.verbose)
+        {
+            Console.WriteLine("Simplified: " + TokenStreamToString());
+            Console.WriteLine("Stream: " + PrintTokenStream());
+        }
 
         return tokens;
     }
@@ -180,7 +186,7 @@ public class ParserSimplifier
         string regex = "";
 
         for (int i = 0; i < this.tokens.Count; i++)
-            regex += " " + this.tokens[i].tokenOP;
+            regex += " " + this.tokens[i].tokenOP + "{" + this.tokens[i].symbol + "}";
 
         return regex;
     }

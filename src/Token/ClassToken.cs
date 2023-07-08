@@ -6,7 +6,11 @@ public class ClassToken : Token
     private static string numberRange = "0123456789";
     private static string alphabeticalRange = "abcdefghijklmnopqrstuvwxyz";
 
-    public ClassToken(string symbol) : base(symbol, OP.Class) { }
+    public ClassToken(string symbol) : base(symbol, OP.Class)
+    {
+        if (Entry.verbose)
+            Console.WriteLine($"Creating ClassToken: {symbol}");
+    }
 
     public GroupToken ConvertToGroup()
     {
