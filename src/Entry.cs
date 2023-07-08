@@ -45,6 +45,7 @@ public class Entry
 
                             if (!isAFA && o.showNFA)
                             {
+                                EpsilonEliminator.RemoveEpsilonFromState(automaton.startStates[0]);
                                 new AutomatonVisualizer(automaton.startStates[0]);
                                 if (o.words.Any())
                                     SimulateAutomaton(o.words, automaton);
